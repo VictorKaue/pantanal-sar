@@ -1,0 +1,57 @@
+# Area of interest and processing parameters.
+# Every script reads this file, so changing region means editing only this file.
+
+name: pantanal-norte
+description: >
+  Northern Pantanal (Mato Grosso), Paraguay River floodplain between Caceres and
+  the Pantanal Matogrossense National Park. PROVISIONAL default: confirm with
+  FIRMS hotspots before freezing (see docs/SETUP.md, step 4).
+
+# lon_min, lat_min, lon_max, lat_max (WGS84). Fully inside NISAR track 132 frame 169.
+bbox: [-58.3, -17.5, -57.3, -16.5]
+
+nisar:
+  collection_concept_id: C2854338529-ASF   # NISAR Provisional GCOV v1 (ASF)
+  short_name: NISAR_L2_GCOV_PROVISIONAL_V1
+  track: 132          # relative orbit; only compare dates from the same track
+  direction: A        # A = ascending, D = descending
+  frame: 169
+  frequency: frequencyA
+  polarizations: [HHHH, HVHV]
+  # Dates on track 132 / frame 169 (all dual-pol DHDH), from data/inventory.
+  # Chosen to cover the flood recession (July) through the fire season (Aug-Oct).
+  dates: ["2026-07-05", "2026-08-22", "2026-09-27", "2026-10-21"]
+  start: "2026-06-17"
+  end: "2026-11-14"
+
+processing:
+  speckle_window: 5        # Lee filter window (pixels)
+  downsample: 2            # integer factor applied after subsetting (speed)
+  # Open water: low HH backscatter. Threshold is computed per date with Otsu on HH (dB)
+  # inside these bounds, so it adapts to wind and incidence angle.
+  water_threshold_db_bounds: [-24.0, -14.0]
+  # Flooded vegetation: double bounce makes HH very bright. Experimental.
+  flooded_veg_hh_db_min: -2.0
+  flooded_veg_hh_minus_hv_db_min: 8.0
+  # Burn scar: drop in HV between consecutive dates, in units of the std of the
+  # log-ratio over pixels that stayed stable (not water in either date).
+  burn_hv_drop_sigma: 2.0
+  # A burn candidate is kept only if a FIRMS hotspot fell within this distance
+  # between the two dates (avoids confusing flooding or harvest with fire).
+  firms_buffer_m: 750
+
+firms:
+  sources: [VIIRS_SNPP_SP, VIIRS_NOAA20_SP, VIIRS_SNPP_NRT, VIIRS_NOAA20_NRT, MODIS_SP, MODIS_NRT]
+  start: "2026-06-17"
+  end: "2026-11-14"
+
+hls:
+  max_cloud_cover: 20
+  # Clear HLS dates found next to the NISAR passes (CMR search, 2026-11-14).
+  # Landsat (L30): 09-04, 09-28, 10-07. Sentinel-2 (S30): 10-19, 10-20.
+  search_window_days: 4
+
+analysis:
+  # Spacing between sampled pixels in the statistical test (reduces spatial
+  # autocorrelation). Converted to pixels from the grid resolution.
+  sample_spacing_m: 1000

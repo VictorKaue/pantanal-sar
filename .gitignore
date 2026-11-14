@@ -1,0 +1,30 @@
+# Secrets
+.env
+.netrc
+
+# Raw and processed data (too large for git; regenerate with the pipeline)
+data/raw/*/*
+!data/raw/*/.gitkeep
+data/processed/**
+!data/processed/.gitkeep
+*.h5
+*.hdf
+*.tif
+*.tiff
+
+# Web layers are generated; keep only the folder and an empty manifest
+web/data/**
+!web/data/.gitkeep
+!web/data/manifest.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# OS / editors
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pantanal SAR · água e fogo</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; }
+  #map { position: absolute; inset: 0 320px 0 0; }
+  aside { position: absolute; top: 0; right: 0; width: 320px; height: 100%; overflow: auto;
+          box-sizing: border-box; padding: 16px; background: #fafafa; border-left: 1px solid #ddd; }
+  h1 { font-size: 18px; margin: 0 0 4px; } p.sub { margin: 0 0 12px; color: #555; font-size: 13px; }
+  #banner { display: none; background: #fde68a; padding: 8px; font-size: 13px; margin-bottom: 12px; }
+  label { display: flex; gap: 6px; align-items: center; font-size: 14px; margin: 6px 0; }
+  .sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  .tag { font-size: 11px; color: #666; margin-left: auto; }
+  input[type=range] { width: 100%; } .muted { color: #777; font-size: 12px; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<aside>
+  <h1>Pantanal: água e fogo</h1>
+  <p class="sub">Radar NISAR (banda L) vê através da fumaça e das nuvens.</p>
+  <div id="banner">DADOS SINTÉTICOS DE DEMONSTRAÇÃO. Não são resultados reais.</div>
+  <div><strong>Data:</strong> <span id="dateLabel">-</span></div>
+  <input id="date" type="range" min="0" max="0" value="0">
+  <div id="layers"></div>
+  <label><input type="checkbox" id="firms" checked> <span class="sw" style="background:#ffb000"></span> Focos de fogo <span class="tag">Observado (FIRMS)</span></label>
+  <h3>Resumo</h3>
+  <div id="stats" class="muted">Sem dados. Rode <code>cli export</code> ou <code>cli demo</code>.</div>
+</aside>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const SRC = { measured: "Medido (NISAR)", derived: "Derivado (NISAR + FIRMS)" };
+const TYPES = ["backscatter", "open_water", "flooded_veg", "dried", "burn", "dried_then_burned"];
+const map = L.map("map").setView([-17, -57.8], 8);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  { attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
+let M, overlays = {}, on = { backscatter: false, open_water: true, flooded_veg: false, dried: true, burn: true, dried_then_burned: false }, firmsLayer;
+
+fetch("data/manifest.json").then(r => r.json()).then(m => {
+  M = m;
+  if (!m.layers || !m.layers.length) return;
+  if (m.demo) document.getElementById("banner").style.display = "block";
+  const [w, s, e, n] = m.bbox; map.fitBounds([[s, w], [n, e]]);
+  const slider = document.getElementById("date");
+  slider.max = m.dates.length - 1; slider.oninput = draw;
+  const box = document.getElementById("layers");
+  TYPES.forEach(t => {
+    const ex = m.layers.find(l => l.type === t); if (!ex) return;
+    const lab = document.createElement("label");
+    lab.innerHTML = `<input type="checkbox" ${on[t] ? "checked" : ""}> <span class="sw" style="background:${ex.color || "#999"}"></span> ${ex.label_pt} <span class="tag">${SRC[ex.source]}</span>`;
+    lab.querySelector("input").onchange = ev => { on[t] = ev.target.checked; draw(); };
+    box.appendChild(lab);
+  });
+  fetch("data/" + m.firms).then(r => r.json()).then(g => {
+    firmsLayer = L.geoJSON(null, { pointToLayer: (f, ll) => L.circleMarker(ll, { radius: 3, color: "#ffb000", weight: 1 }) });
+    firmsLayer._all = g.features;
+    document.getElementById("firms").onchange = draw; draw();
+  });
+  showStats(m.stats); draw();
+});
+
+function draw() {
+  if (!M) return;
+  const i = +document.getElementById("date").value, d = M.dates[i];
+  document.getElementById("dateLabel").textContent = d;
+  Object.values(overlays).forEach(o => map.removeLayer(o)); overlays = {};
+  M.layers.forEach(l => {
+    const show = on[l.type] && (l.date === d || (l.type === "dried_then_burned" && i === M.dates.length - 1));
+    if (show) overlays[l.id] = L.imageOverlay("data/" + l.file, l.bounds, { opacity: 1 }).addTo(map);
+  });
+  if (firmsLayer) {
+    map.removeLayer(firmsLayer);
+    if (document.getElementById("firms").checked) {
+      const prev = i > 0 ? M.dates[i - 1] : "0000";
+      firmsLayer.clearLayers(); firmsLayer.addData({ type: "FeatureCollection",
+        features: firmsLayer._all.filter(f => f.properties.date > prev && f.properties.date <= d) });
+      firmsLayer.addTo(map);
+    }
+  }
+}
+
+function showStats(s) {
+  if (!s) return;
+  const a = s.analysis || {}, t = a.dried_vs_always_dry || {};
+  const rows = Object.entries(s.per_date).map(([d, v]) => `${d}: água ${v.open_water_km2} km²`).join("<br>");
+  document.getElementById("stats").innerHTML = rows +
+    (t.odds_ratio ? `<br><br>Áreas que secaram queimaram ${(t.burn_rate_a * 100).toFixed(1)}% vs ${(t.burn_rate_b * 100).toFixed(1)}% nas sempre secas (razão de chances ${t.odds_ratio}, IC95% ${t.ci95.join("–")}). Associação observada, não causa.` : "");
+}
+</script>
+</body>
+</html>
