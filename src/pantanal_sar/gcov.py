@@ -144,4 +144,5 @@ def inspect(path: str) -> None:
 
 def _has_env() -> bool:
     import os
-    return bool(os.environ.get("EARTHDATA_USERNAME") and os.environ.get("EARTHDATA_PASSWORD"))
+    return bool(os.environ.get("EARTHDATA_TOKEN")
+                or (os.environ.get("EARTHDATA_USERNAME") and os.environ.get("EARTHDATA_PASSWORD")))
