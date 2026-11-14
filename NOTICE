@@ -1,0 +1,17 @@
+Pantanal SAR
+Copyright 2026 Victor Kaue and the Pantanal SAR team
+
+This product was built for the NASA Space Apps Challenge 2026
+("Dancing with the SARs") and is licensed under the Apache License 2.0
+(see LICENSE).
+
+Data used (not redistributed in this repository; fetched at run time):
+- NISAR L2 GCOV Provisional V1, NASA/JPL and ISRO, distributed by ASF DAAC.
+- MCD64A1 v061, NASA LP DAAC (doi:10.5067/MODIS/MCD64A1.061).
+- HLS L30/S30 v2.0, NASA LP DAAC (doi:10.5067/HLS/HLSL30.002, doi:10.5067/HLS/HLSS30.002).
+- FIRMS (MODIS and VIIRS active fires), NASA LANCE/FIRMS.
+- Base map: OpenStreetMap contributors (ODbL).
+
+Third-party software and its licenses: see THIRD_PARTY_LICENSES.md.
+NASA, NISAR, ASF, FIRMS and OpenStreetMap are not affiliated with this project
+and do not endorse it.

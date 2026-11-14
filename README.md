@@ -68,7 +68,9 @@ documentation. All outputs were reviewed by the team. Declared per Space Apps gu
 
 ## License
 
-Apache-2.0. Data citations in [docs/HACKATHON.md](docs/HACKATHON.md).
+Apache-2.0 (see [LICENSE](LICENSE) and [NOTICE](NOTICE)). Third-party software and data terms in
+[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md). Data citations in [docs/HACKATHON.md](docs/HACKATHON.md).
+NISAR GCOV is a provisional product; results are exploratory, not validated science.
 
 ---
 

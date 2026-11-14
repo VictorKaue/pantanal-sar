@@ -1,6 +1,10 @@
 # Secrets
 .env
+.env.*
+!.env.example
 .netrc
+*.pem
+*.key
 
 # Raw and processed data (too large for git; regenerate with the pipeline)
 data/raw/*/*
@@ -11,6 +15,8 @@ data/processed/**
 *.hdf
 *.tif
 *.tiff
+*.nc
+*.zip
 
 # Web layers are generated; keep only the folder and an empty manifest
 web/data/**
