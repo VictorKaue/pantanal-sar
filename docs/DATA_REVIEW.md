@@ -129,3 +129,23 @@ Em 27/09 o NISAR deixa de ver cerca de 115 km² de água que o S1 vê (2-3 dias 
 - P1. Máscara NISAR x DSWx-HLS em pixel: o DSWx-HLS de 2026 não tem data `ok` no mesmo dia do NISAR, e `data/raw/hls` só tem 2024. Parcialmente coberto pela comparação S1 x NISAR (S4).
 - P2. Rever S1 e calibração depois que `s1_rtc.csv` for regenerado (S0).
 - P3. Proveniência (citações no README, licenças, declaração de IA).
+
+## Reprodutibilidade (alterado, 15/11, PR #1)
+
+Clone limpo de `feat/opera-history-web` (commit `fae41be`) no scratchpad, venv novo (Python 3.14), `pip install -r requirements.txt && pip install -e .`, sem downloads.
+
+**Reproduz: sim, bit a bit.**
+- `pytest`: 61 passed (274 warnings, nenhuma falha).
+- `python -m pantanal_sar.cli timeseries` a partir dos CSVs commitados: `web/data/series/*` (observations, model, metrics, em JSON e CSV) **idênticos** aos commitados (`git diff` vazio). A única diferença é `manifest.json` -> `generated` (carimbo de hora), que é esperada.
+- Detecção (0 de 8 fora da faixa de 95%, tendência -1,01 km²/dia, faixa -1,73 a -0,29, holdout MAPE 44,4%), previsão (fonte DSWx-HLS, 169 obs, holdout MAPE 9,3%/18,7%, escala do IC 0,754) e portão (todas reprovadas) iguais aos números deste review.
+- Aleatoriedade: `_fit_predict` fixa `np.random.seed(0)` antes de cada ajuste (amostras de incerteza do Prophet) e o bootstrap usa `default_rng(seed=0)`; a otimização MAP do Stan é determinística. Saída estável entre execuções e máquinas. A ressalva é a de B1: o resultado depende da semente fixa (com 80%, a data 09-27 mudava com a semente; com 95% nenhuma data fica fora em nenhuma das sementes testadas antes).
+
+**Limitações de reprodutibilidade (registrar):**
+- `requirements.txt` sem versões fixas (`>=`). Hoje resolve igual ao venv do time (prophet 1.5.0, cmdstanpy 1.3.2, numpy 2.5.4, pandas 3.1.1, scipy 1.18.1), mas pode mudar no futuro. Sugestão: publicar um `requirements-lock.txt` (`pip freeze`).
+- As camadas `web/data/layers/*.png` e os CSVs de `data/series/` só se regeneram com os downloads (NISAR cerca de 7 GB por data, S1 RTC 246 datas) e login Earthdata; o pacote web reproduz a partir dos CSVs commitados.
+
+**Segurança do PR: ok.**
+- Sem `.env`, tokens nem chaves: varredura do intervalo `main..HEAD` (119 arquivos) por padrões de token (Earthdata/JWT, GitHub, AWS, MAP_KEY, password); `.env.example` só com chaves vazias; `.gitignore` cobre `.env*`, `.netrc`, `*.pem`, `*.key`.
+- Sem dados brutos: nenhum `.h5`, `.tif`, `.npz` nem conteúdo de `data/raw` ou `data/processed` (só `.gitkeep`).
+- Sem arquivos > 5 MB, nem na árvore nem no histórico do PR; o maior é `web/data/layers/2026-07-17_nisar_hh.png` (0,85 MB); `.git` tem 8,9 MB.
+- Nenhum e-mail pessoal em arquivos versionados. `.claude/launch.json` está versionado, mas só tem o comando `http.server` (inofensivo).
