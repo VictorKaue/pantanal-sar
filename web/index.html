@@ -40,7 +40,7 @@
   <div class="page">
     <section class="head">
       <div class="head-text">
-        <h1>Área de água aberta — Pantanal norte</h1>
+        <h1>Água aberta no Pantanal norte</h1>
         <p class="sub">Trilha NISAR 132 (DHDH), 8 passagens em 2026. Modelo Prophet: detecção primeiro (observado vs. esperado), projeção de curto prazo como diferencial.</p>
       </div>
       <span id="statusChip" class="chip chip--ok"><span class="dot"></span><span class="label">Dentro do esperado</span></span>
@@ -69,8 +69,8 @@
       <h2>Como ler este gráfico</h2>
       <ul>
         <li>A faixa sombreada é a faixa esperada do modelo (95%); um ponto fora dela é "fora da faixa esperada", não prova de mudança.</li>
-        <li>A barra fina em cada ponto medido é a incerteza do método (limiar ±1 dB) — não é a faixa de 95%.</li>
-        <li>A projeção é um gráfico separado, em variação percentual — nunca emendada na linha de km² (ver "Limitações").</li>
+        <li>A barra fina em cada ponto medido é a incerteza do método (limiar ±1 dB), diferente da faixa de 95%.</li>
+        <li>A projeção é um gráfico separado, em variação percentual. Ela nunca é emendada na linha de km² (ver "Limitações").</li>
       </ul>
       <p class="muted small">Fontes completas e método: ícone "i" no topo.</p>
     </section>
@@ -91,7 +91,7 @@
         <p id="mapSub" class="sub">Pantanal norte (MT) · Trilha NISAR 132</p>
         <div class="divider"></div>
         <h2>Comparar datas</h2>
-        <p class="sub">Escolha a passagem da esquerda (E) e da direita (D) da linha — ou arraste a régua no mapa.</p>
+        <p class="sub">Escolha a passagem da esquerda (E) e da direita (D) da linha, ou arraste a régua no mapa.</p>
         <div id="dateList" class="date-list"></div>
         <div class="divider"></div>
         <label class="sub" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
@@ -111,14 +111,14 @@
 <!-- ===================== Storyline ===================== -->
 <main id="view-story" class="view">
   <div class="page">
-    <h1>Storyline — Dancing with the SARs</h1>
+    <h1>Storyline: Dancing with the SARs</h1>
     <p class="sub">A leitura guiada do desafio: o que o NISAR detectou, por que pode ter acontecido, como o radar enxerga isso e o que vem a seguir.</p>
 
     <ol class="steps">
       <li class="step step--active">
         <div class="step-head"><span class="step-num">1</span><h2>O que aconteceu</h2></div>
         <div class="card step-card">
-          <p>Entre 17 jul e 21 out de 2026, a água aberta medida pelo NISAR (trilha 132) caiu de 376&nbsp;km² para 254&nbsp;km² — uma tendência de cerca de -30&nbsp;km²/mês. Com a faixa esperada de 95%, nenhuma passagem ficou fora do esperado até agora. Detalhes na aba "Série temporal".</p>
+          <p>Entre 17 jul e 21 out de 2026, a água aberta medida pelo NISAR (trilha 132) caiu de 376&nbsp;km² para 254&nbsp;km², uma tendência de cerca de -30&nbsp;km²/mês. Com a faixa esperada de 95%, nenhuma passagem ficou fora do esperado até agora. Detalhes na aba "Série temporal".</p>
         </div>
       </li>
       <li class="step">
@@ -128,12 +128,12 @@
             <div class="mini-card">
               <span class="tag" style="color:var(--agua-principal)"><span class="dot" style="background:var(--agua-principal)"></span>Hipótese 1</span>
               <h3>Estação seca</h3>
-              <p>Jul–out é o período seco do Pantanal — a retração é consistente com o ciclo natural, não necessariamente um evento fora do comum.</p>
+              <p>Jul-out é o período seco do Pantanal. A retração é consistente com o ciclo natural, não necessariamente um evento fora do comum.</p>
             </div>
             <div class="mini-card">
               <span class="tag" style="color:var(--agua-clara-texto)"><span class="dot" style="background:var(--agua-clara)"></span>Hipótese 2</span>
               <h3>Comparação histórica (fase 2)</h3>
-              <p>Com o histórico do MapBiomas calibrado via OPERA DSWx, dá para checar se este ano está fora do padrão dos últimos anos — ainda não comparável nesta fase.</p>
+              <p>Com o histórico do MapBiomas calibrado via OPERA DSWx, dá para checar se este ano está fora do padrão dos últimos anos. Ainda não é comparável nesta fase.</p>
             </div>
           </div>
         </div>
@@ -145,7 +145,7 @@
             <div class="mini-card">
               <span class="tag" style="color:var(--agua-principal)"><span class="dot" style="background:var(--agua-principal)"></span>HH</span>
               <h3>Água aberta</h3>
-              <p>Superfície lisa devolve pouco sinal ao sensor, por isso aparece escura em HH — é a base do limiar que define a máscara de água.</p>
+              <p>Superfície lisa devolve pouco sinal ao sensor, por isso aparece escura em HH. É a base do limiar que define a máscara de água.</p>
             </div>
             <div class="mini-card">
               <span class="tag" style="color:var(--fogo-foco)"><span class="dot" style="background:var(--fogo-foco)"></span>HV</span>
@@ -189,7 +189,7 @@
       <h3>Método</h3>
       <ul>
         <li>Detecção: só NISAR 2026 (trilha 132, 8 passagens), dentro da amostra (tendência + changepoints, sem sazonalidade anual), faixa esperada de 95%.</li>
-        <li>Projeção: 4 semanas a partir do OPERA DSWx-HLS (mais histórico e cobertura mensal completa), sempre em variação percentual — o nível em km² só seria publicado se a fonte passasse no teste de calibração contra o NISAR.</li>
+        <li>Projeção: 4 semanas a partir do OPERA DSWx-HLS (mais histórico e cobertura mensal completa), sempre em variação percentual. O nível em km² só seria publicado se a fonte passasse no teste de calibração contra o NISAR.</li>
         <li>OPERA DSWx-S1, OPERA DSWx-HLS e Sentinel-1 RTC ainda não passaram no teste de calibração (ver lista de fontes acima e o painel "Limitações" na aba Série temporal).</li>
       </ul>
     </div>

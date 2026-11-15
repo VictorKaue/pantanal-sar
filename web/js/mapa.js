@@ -1,7 +1,7 @@
-// Wetland Pulse: aba "Mapa" — contrato v2. Dois mapas Leaflet sincronizados
-// (mesmo padrão dos plugins "side by side"): cada um mostra a data de um lado
-// da régua, recortado pelo próprio contêiner (não pelo pane interno do
-// Leaflet), por isso continua correto mesmo com o mapa arrastável e com zoom.
+// Wetland Pulse: aba "Mapa", contrato v2. Dois mapas Leaflet sincronizados
+// (mesmo padrão dos plugins "side by side"). Cada um mostra a data de um lado
+// da régua, recortado pelo próprio contêiner, não pelo pane interno do
+// Leaflet. Por isso continua correto mesmo com o mapa arrastável e com zoom.
 "use strict";
 
 (function () {
@@ -87,7 +87,7 @@
     b.on("move zoom", () => copy(b, a));
   }
 
-  // --- slider (comparison line) — clips the two map CONTAINERS, not Leaflet's
+  // --- slider (comparison line): clips the two map CONTAINERS, not Leaflet's
   // internal panes, so it stays correct under drag/zoom. ---
   let sliderPx = null;
 

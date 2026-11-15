@@ -1,4 +1,4 @@
-// Wetland Pulse: aba "Série temporal" — contrato de dados v2
+// Wetland Pulse: aba "Série temporal", contrato de dados v2
 // (web/data/manifest.json + series/model.json + series/metrics.json).
 // Ver docs/DATA_CONTRACT.md. Detecção (kind:"fit") e projeção (kind:"forecast")
 // nunca são misturadas no mesmo eixo/unidade: detecção em km², projeção em % (docs/DATA_REVIEW.md).
@@ -158,7 +158,7 @@
       const cx = x(p.date).toFixed(2), cy = y(p.observed_km2).toFixed(2);
       const fill = p.anomaly ? "var(--status-critico)" : "var(--agua-principal)";
       return `<circle cx="${cx}" cy="${cy}" r="4.5" fill="${fill}" stroke="var(--fundo-superficie)" stroke-width="1.5">
-        <title>${fmtDate(p.date)}: medido ${fmtNum(p.observed_km2)} km² (limiar ±1 dB: ${fmtNum(p.method_lo_km2)}–${fmtNum(p.method_hi_km2)}), esperado ${fmtNum(p.expected_km2)} km²${p.anomaly ? " — fora da faixa esperada (95%)" : ""}</title>
+        <title>${fmtDate(p.date)}: medido ${fmtNum(p.observed_km2)} km² (limiar ±1 dB: ${fmtNum(p.method_lo_km2)}–${fmtNum(p.method_hi_km2)}), esperado ${fmtNum(p.expected_km2)} km²${p.anomaly ? ", fora da faixa esperada (95%)" : ""}</title>
       </circle>`;
     }).join("");
 
