@@ -6,10 +6,13 @@ Two ways to get the data (both need Earthdata Login):
   * download: fetch the whole .h5 to data/raw/nisar/ and cut locally. Use it if
     streaming is slow or fails.
 
-Internal layout (NISAR GCOV product spec; confirm with `python -m pantanal_sar.cli inspect`):
-  science/LSAR/GCOV/grids/frequencyA/{HHHH,HVHV,...}  linear gamma0 backscatter
-  .../xCoordinates, .../yCoordinates                    pixel-centre coordinates (m)
-  .../projection                                        attribute epsg_code
+Internal layout (confirmed with `cli inspect` on a real granule, 14/11/2026, (alterado)):
+  science/LSAR/GCOV/grids/frequencyA/{HHHH,HVHV}  linear gamma0 backscatter, 20 m, NaN fill
+  .../xCoordinates, .../yCoordinates              pixel-centre coordinates (m), attribute
+                                                  pixel_coordinate_convention = "center"
+  .../projection                                  scalar EPSG + attribute epsg_code (e.g. 32721)
+  .../mask                                        subswath number; 0 = partially focused
+                                                  (invalid), 255 = outside the swath
 """
 
 from __future__ import annotations
@@ -54,6 +57,10 @@ def read_subset(h5: h5py.File, bbox, freq="frequencyA", pols=("HHHH", "HVHV")):
     x0, x1, y0, y1 = ix.min(), ix.max() + 1, iy.min(), iy.max() + 1
     dx, dy = float(x[1] - x[0]), float(y[1] - y[0])
     transform = Affine(dx, 0, float(x[x0]) - dx / 2, 0, dy, float(y[y0]) - dy / 2)
+    bad = None
+    if "mask" in g:
+        m = g["mask"][y0:y1, x0:x1]
+        bad = (m == 0) | (m == 255)
     arrays = {}
     for p in pols:
         if p not in g:
@@ -61,6 +68,8 @@ def read_subset(h5: h5py.File, bbox, freq="frequencyA", pols=("HHHH", "HVHV")):
             continue
         a = g[p][y0:y1, x0:x1].astype("float32")
         a[~np.isfinite(a) | (a <= 0)] = np.nan
+        if bad is not None:
+            a[bad] = np.nan
         arrays[p] = a
     return arrays, transform, f"EPSG:{epsg}"
 
