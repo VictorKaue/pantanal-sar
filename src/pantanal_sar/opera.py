@@ -1,5 +1,6 @@
 """OPERA DSWx-HLS: serie mensal de area de agua -> data/series/opera_dswx_water.csv.
 
+Saida principal: data/series/opera_dswx_hls.csv (contrato v2, uma linha por data).
 Ponte de calibracao entre MapBiomas Agua (2025) e NISAR (2026). Baixa so a camada
 B01_WTR de cada tile, recorta ao bbox da AOI (grade UTM 30 m, sem reamostragem),
 junta os tiles/sensores do mesmo dia e agrega por mes (mediana das datas validas).
@@ -29,7 +30,10 @@ from .config import RAW, ROOT, load_config, load_env
 
 SHORT_NAME = "OPERA_L3_DSWX-HLS_V1"
 CMR = "https://cmr.earthdata.nasa.gov/search/granules.json"
-SERIES_CSV = ROOT / "data" / "series" / "opera_dswx_water.csv"
+SERIES_CSV = ROOT / "data" / "series" / "opera_dswx_water.csv"  # derivado mensal
+DAILY_CSV = ROOT / "data" / "series" / "opera_dswx_hls.csv"  # contrato v2, por data
+DAILY_FIELDS = ["date", "source", "sensor", "water_km2", "water_partial_km2", "valid_km2",
+                "valid_frac", "method", "quality", "product", "n_granules"]
 CACHE = RAW / "opera_dswx"
 FIELDS = ["date", "water_km2", "water_partial_km2", "clear_frac", "n_scenes", "source"]
 SOURCE = "NASA OPERA DSWx-HLS v1 (HLS L30/S30, 30 m)"
@@ -41,12 +45,12 @@ _NAME = re.compile(r"DSWx-HLS_(T\w{5})_(\d{8})T(\d{6})Z_\d{8}T\d{6}Z_(\w+?)_30_"
 
 
 # ---------------------------------------------------------------- CMR
-def search(bbox, start: str, end: str) -> list[dict]:
+def search(bbox, start: str, end: str, short_name: str = SHORT_NAME, pattern=_NAME) -> list[dict]:
     """Granules over bbox. Returns [{title, tile, date, sensor, url}] (WTR url only)."""
     out, page = [], 1
     while True:
         r = requests.get(CMR, params={
-            "short_name": SHORT_NAME, "bounding_box": ",".join(map(str, bbox)),
+            "short_name": short_name, "bounding_box": ",".join(map(str, bbox)),
             "temporal": f"{start}T00:00:00Z,{end}T23:59:59Z",
             "page_size": 2000, "page_num": page}, timeout=60)
         r.raise_for_status()
@@ -54,7 +58,7 @@ def search(bbox, start: str, end: str) -> list[dict]:
         if not entries:
             break
         for e in entries:
-            m = _NAME.search(e["title"])
+            m = pattern.search(e["title"])
             url = next((link["href"] for link in e["links"]
                         if link["href"].endswith("_B01_WTR.tif") and link["href"].startswith("https")
                         and "data#" in link.get("rel", "")), None)
@@ -74,34 +78,34 @@ def per_month(granules) -> dict[str, int]:
 
 
 # ---------------------------------------------------------------- grid / clip
-def aoi_grid(bbox):
+def aoi_grid(bbox, epsg: int = 32621):
     """Target grid in EPSG:32621, the native OPERA grid (UTM 21N with negative northing in the
     southern hemisphere), 30 m, snapped to multiples of 30 m. -> (left, top, ncols, nrows)."""
     from rasterio.warp import transform_bounds
-    l, b, r, t = transform_bounds("EPSG:4326", "EPSG:32621", *bbox)
+    l, b, r, t = transform_bounds("EPSG:4326", f"EPSG:{epsg}", *bbox)
     left, top = np.floor(l / PIXEL) * PIXEL, np.ceil(t / PIXEL) * PIXEL
     ncols, nrows = int(np.ceil((r - left) / PIXEL)), int(np.ceil((top - b) / PIXEL))
     return float(left), float(top), ncols, nrows
 
 
-def clip_tile(tif_bytes: bytes, grid) -> np.ndarray:
+def clip_tile(tif_bytes: bytes, grid, epsg: int = 32621) -> np.ndarray:
     """Read the WTR window of the AOI grid from a tile; outside the tile = 255."""
     import rasterio
     from rasterio.windows import Window
     left, top, ncols, nrows = grid
     with rasterio.MemoryFile(tif_bytes) as mf, mf.open() as src:
-        if src.crs.to_epsg() != 32621 or abs(src.transform.a - PIXEL) > 1e-6:
+        if src.crs.to_epsg() != epsg or abs(src.transform.a - PIXEL) > 1e-6:
             raise ValueError(f"grade inesperada: {src.crs} {src.transform.a}")
         c0 = int(round((left - src.transform.c) / PIXEL))
         r0 = int(round((src.transform.f - top) / PIXEL))
         return src.read(1, window=Window(c0, r0, ncols, nrows), boundless=True, fill_value=FILL)
 
 
-def composite(arrays) -> np.ndarray:
+def composite(arrays, clear=CLEAR_CLASSES) -> np.ndarray:
     """Merge same-day clips: a clear pixel (0/1/2) beats cloud/mask/fill."""
     out = np.full_like(arrays[0], FILL)
     for a in arrays:
-        take = np.isin(a, CLEAR_CLASSES) & ~np.isin(out, CLEAR_CLASSES)
+        take = np.isin(a, clear) & ~np.isin(out, clear)
         out[take] = a[take]
     return out
 
@@ -162,8 +166,8 @@ def _session() -> requests.Session:
     return s
 
 
-def _clip_cached(g: dict, grid, sess) -> np.ndarray | None:
-    f = CACHE / f"{g['title']}.npz"
+def _clip_cached(g: dict, grid, sess, cache: Path = CACHE, epsg: int = 32621) -> np.ndarray | None:
+    f = cache / f"{g['title']}.npz"
     if f.exists():
         return np.load(f)["wtr"]
     for attempt in range(4):
@@ -173,19 +177,23 @@ def _clip_cached(g: dict, grid, sess) -> np.ndarray | None:
                 print("  404, ignorado:", g["title"])
                 return None
             r.raise_for_status()
-            arr = clip_tile(r.content, grid)
+            arr = clip_tile(r.content, grid, epsg)
             break
+        except ValueError as exc:  # grade inesperada (CRS fora do padrao): pular
+            print("  grade inesperada, ignorado:", g["title"], exc)
+            return None
         except (requests.RequestException, rasterio_errors()) as exc:
             if attempt == 3:
                 print("  falhou, ignorado:", g["title"], exc)
                 return None
             time.sleep(2 ** attempt)
-    CACHE.mkdir(parents=True, exist_ok=True)
+    cache.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(f, wtr=arr)
     return arr
 
 
-def scenes_from(granules, grid, workers: int = 6):
+def scenes_from(granules, grid, workers: int = 6, cache: Path = CACHE, epsg: int = 32621,
+                clear=CLEAR_CLASSES, stats=None):
     """Group granules by date, clip WTR, composite same-day tiles/sensors, compute stats."""
     sess = _session()
     by_date: dict[str, list[dict]] = defaultdict(list)
@@ -194,18 +202,42 @@ def scenes_from(granules, grid, workers: int = 6):
     flat = [g for gs in by_date.values() for g in gs]
     with ThreadPoolExecutor(workers) as ex:
         clips = dict(zip((g["title"] for g in flat),
-                         ex.map(lambda g: _clip_cached(g, grid, sess), flat)))
+                         ex.map(lambda g: _clip_cached(g, grid, sess, cache, epsg), flat)))
     out = []
     for d, gs in sorted(by_date.items()):
         arrs = [clips[g["title"]] for g in gs if clips[g["title"]] is not None]
         if arrs:
-            out.append({"date": d, "n_granules": len(arrs), **scene_stats(composite(arrs))})
+            out.append({"date": d, "n_granules": len(arrs), **(stats or scene_stats)(composite(arrs, clear))})
     return out
 
 
 def default_periods():
-    """2025 inteiro + 2026 jun-out (alinhado a janela do NISAR)."""
-    return [("2025-01-01", "2025-12-31"), ("2026-06-01", "2026-10-31")]
+    """Historico completo para o modelo: 2023-01 ate hoje (contrato v2)."""
+    return [("2023-01-01", date.today().isoformat())]
+
+
+def quality(valid_frac: float) -> str:
+    """ok >= 0.8 · low 0.6-0.8 (peso menor no modelo) · drop < 0.6 (fora do modelo)."""
+    return "ok" if valid_frac >= 0.8 else "low" if valid_frac >= MIN_CLEAR else "drop"
+
+
+def daily_rows(scenes):
+    """Contract v2 rows (docs/DATA_CONTRACT.md, secao 1): one per date (mosaico do dia)."""
+    return [{"date": s["date"], "source": "opera_dswx_hls", "sensor": "HLS optical",
+             "water_km2": round(s["water_km2"], 4),
+             "water_partial_km2": round(s["water_partial_km2"], 4),
+             "valid_km2": round(s["clear_km2"], 4), "valid_frac": round(s["clear_frac"], 4),
+             "method": "DSWx WTR=1", "quality": quality(s["clear_frac"]),
+             "product": SHORT_NAME, "n_granules": s["n_granules"]} for s in scenes]
+
+
+def write_daily(rows, path: Path = DAILY_CSV) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=DAILY_FIELDS)
+        w.writeheader()
+        w.writerows(rows)
+    return path
 
 
 def run(start: str | None = None, end: str | None = None, only_search: bool = False) -> None:
@@ -220,12 +252,9 @@ def run(start: str | None = None, end: str | None = None, only_search: bool = Fa
     if only_search:
         return
     scenes = scenes_from(granules, aoi_grid(bbox))
-    kept = sum(s["clear_frac"] >= MIN_CLEAR for s in scenes)
-    rows = monthly(scenes)
-    print(f"{len(scenes)} datas, {kept} com clear_frac >= {MIN_CLEAR}")
-    print("escrito", write(rows), f"({len(rows)} meses)")
-    missing = sorted({f"{y}-{m:02d}" for s, e in periods
-                      for y in range(int(s[:4]), int(e[:4]) + 1) for m in range(1, 13)
-                      if s[:7] <= f"{y}-{m:02d}" <= e[:7]} - {r['date'][:7] for r in rows})
-    if missing:
-        print("meses sem cena valida:", ", ".join(missing))
+    daily = daily_rows(scenes)
+    n_ok = sum(r["quality"] != "drop" for r in daily)
+    print(f"{len(daily)} datas, {n_ok} com valid_frac >= {MIN_CLEAR}")
+    print("escrito", write_daily(daily))
+    rows = monthly(scenes)  # derivado do diario; Mare/timeseries ainda le este
+    print("escrito", write(rows), f"(derivado mensal, {len(rows)} meses)")

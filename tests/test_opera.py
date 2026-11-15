@@ -35,3 +35,24 @@ def test_aoi_grid_is_30m_aligned():
     left, top, nc, nr = opera.aoi_grid([-58.3, -17.5, -57.3, -16.5])
     assert left % 30 == 0 and top % 30 == 0
     assert 3300 < nc < 3800 and 3300 < nr < 3800
+
+
+def test_daily_rows_follow_contract_and_quality():
+    sc = [{"date": "2024-05-01", "water_km2": 1.23456, "water_partial_km2": 2.0, "clear_km2": 90.0,
+           "clear_frac": 0.9, "n_granules": 3},
+          {"date": "2024-05-02", "water_km2": 5, "water_partial_km2": 0, "clear_km2": 70.0,
+           "clear_frac": 0.7, "n_granules": 2},
+          {"date": "2024-05-03", "water_km2": 5, "water_partial_km2": 0, "clear_km2": 10.0,
+           "clear_frac": 0.1, "n_granules": 1}]
+    rows = opera.daily_rows(sc)
+    assert [r["quality"] for r in rows] == ["ok", "low", "drop"]
+    assert set(opera.DAILY_FIELDS) == set(rows[0])
+    assert rows[0]["source"] == "opera_dswx_hls" and rows[0]["valid_frac"] == 0.9
+
+
+def test_dswx_s1_stats_classes():
+    from pantanal_sar import opera_s1
+    a = np.array([[0, 1], [2, 3], [251, 255]], dtype=np.uint8)
+    s = opera_s1.stats(a, pixel_km2=1.0)
+    assert s["water_km2"] == 1 and s["water_partial_km2"] == 1 and s["water_inundveg_km2"] == 1
+    assert s["clear_km2"] == 4 and abs(s["clear_frac"] - 4 / 6) < 1e-9
