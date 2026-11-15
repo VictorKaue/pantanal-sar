@@ -111,6 +111,13 @@ def run(processed: Path | None = None, web_data: Path | None = None, firms_csv: 
         "dates": stats["dates"], "layers": layers, "firms": "firms.geojson", "stats": stats,
     }
     out = web_data / "manifest.json"
+    if out.exists():  # keep the entry written by timeseries.py
+        try:
+            prev = json.loads(out.read_text())
+            if "water_series" in prev:
+                manifest["water_series"] = prev["water_series"]
+        except json.JSONDecodeError:
+            pass
     out.write_text(json.dumps(manifest, indent=1))
     print(f"{len(layers)} layers, {len(feats)} hotspots -> {out}")
     return out
