@@ -65,3 +65,25 @@ Detalhes em `docs/SETUP.md`.
 - Perguntar antes de push, publicar ou apagar arquivos.
 - Estilo: respostas condensadas e diretas; em documentos, marcar mudanças com texto "(alterado)", sem emoji.
 - O usuário (Victor) é estudante de Ciência da Computação e Ciência de Dados, com experiência em backend e iOS, migrando para engenharia de dados.
+
+## Verificação com dados derivados do Copernicus (alterado, 14/11 19:30)
+Um especialista em sensoriamento remoto recomendou usar Copernicus (Sentinel) para ter dados mais precisos e densos sobre o Pantanal. O desafio exige NISAR, então **NISAR continua o núcleo** e o Sentinel entra como **verificação**.
+Melhor caminho: produtos **NASA OPERA** (JPL), feitos a partir do Sentinel-1 e do HLS, no ASF/LP DAAC com o mesmo login Earthdata. Cobertura confirmada no CMR em 14/11 para o bbox da AOI:
+| Produto | O que é | Datas 2026 na AOI | Uso |
+|---|---|---|---|
+| OPERA_L3_DSWX-HLS_V1 | Mapa de água pronto, a partir do óptico HLS | quase diário em set-nov (ex.: 27/09, 20/10, 22/10) | Validar a água do NISAR; substitui o MNDWI calculado à mão |
+| OPERA_L3_DSWX-S1_V1 | Mapa de água pronto, a partir do radar Sentinel-1 | 02/06-26/06 e 13/09-12/11 (**sem julho e agosto**) | Comparar NISAR (banda L) com Sentinel-1 (banda C) |
+| OPERA_L2_RTC-S1_V1 | Retroespalhamento Sentinel-1 corrigido (VV/VH) | a cada ~5-7 dias, até 12/11 | Série mais densa e mais recente que o NISAR (que vai até 21/10) |
+Pares de datas próximas da trilha 132 do NISAR: 27/09 com DSWx-HLS 27/09 e DSWx-S1 25/09; 21/10 com DSWx-HLS 20/10 e DSWx-S1 19/10.
+Sentinel-5P (CO da fumaça) e pirocúmulos: só para narrativa/vídeo, não como camada de análise.
+Tarefa nova (depois da tarefa 4): `fetch-opera` para baixar DSWx-HLS e DSWx-S1 nas datas pareadas e comparar com a água do NISAR (F1, kappa). Pitch: "conferimos com o radar europeu; o NISAR vê água sob a vegetação que a banda C vê pior".
+
+## Série temporal de água com Prophet (alterado, 14/11)
+Decisão do Victor, substitui partes do "Escopo decidido" e das "Fontes de dados":
+- Foco passa a ser **só a área de água superficial** na AOI, como série temporal tabular modelada com **Prophet**.
+- **Principal: detecção** (observado vs esperado, anomalias, tendência e sazonalidade). **Diferencial: previsão** de curto prazo com intervalo de incerteza, sempre rotulada como projeção.
+- Fase 1: série só com NISAR 2026 (trilha 132). Fase 2: estender com o histórico do **MapBiomas Água** (aceito, mesmo não sendo fonte NASA; citar licença CC-BY).
+- Calibração NISAR -> MapBiomas por ajuste linear simples quando houver sobreposição.
+- Feedback do especialista: água aberta em HH aprox. -25 a -9 dB (confirmar no histograma); limiar pela moda do vale de menor valor; ajuste linear basta.
+- Equipe Maestri: Lagoa (água NISAR), Baia (MapBiomas), Mare (Prophet). Contrato em `data/series/` (ver papéis).
+- (alterado) Ponte de calibração aprovada: MapBiomas (até 2025) e NISAR (jun-out/2026) não se sobrepõem. Usar OPERA DSWx-HLS (2025 e 2026, mesmo bbox) como ponte: ajuste linear MapBiomas<->DSWx em 2025 e DSWx<->NISAR em 2026, compostos. Série em `data/series/opera_dswx_water.csv` (Baia); calibração em `timeseries.py` (Mare).

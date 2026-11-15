@@ -15,3 +15,10 @@ Data used (not redistributed in this repository; fetched at run time):
 Third-party software and its licenses: see THIRD_PARTY_LICENSES.md.
 NASA, NISAR, ASF, FIRMS and OpenStreetMap are not affiliated with this project
 and do not endorse it.
+
+MapBiomas Agua (fase 2, serie historica de agua): MapBiomas Project - Collection 5 of the
+Annual and Monthly Water Surface Maps of Brazil (1985-2025), accessed via Google Earth Engine
+(projects/mapbiomas-public/assets/brazil/water/collection5/...). License CC BY 4.0.
+https://plataforma.agua.mapbiomas.org/  (confirmar o texto de citacao oficial em brasil.mapbiomas.org/en/citar-dados)
+
+NASA OPERA DSWx-HLS (OPERA_L3_DSWX-HLS_V1), JPL/PO.DAAC: mapas de agua derivados de HLS, usados como ponte de calibracao (src/pantanal_sar/opera.py). Citar: OPERA Project, "OPERA Dynamic Surface Water Extent from Harmonized Landsat Sentinel-2 (Version 1)", NASA PO.DAAC, https://doi.org/10.5067/OPERA/OPERA_L3_DSWX-HLS_PROVISIONAL_V1 (alterado)
