@@ -168,7 +168,7 @@ button { font-family: inherit; }
 
 .map-canvas { position: relative; flex: 1; overflow: hidden; background: var(--fundo-mapa-terra); }
 .map-canvas svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-#leafletMap { position: absolute; inset: 0; background: var(--fundo-mapa-terra); }
+.leaflet-half { position: absolute; inset: 0; background: var(--fundo-mapa-terra); }
 #mapOverlayUI { position: absolute; inset: 0; pointer-events: none; z-index: 1000; }
 .map-pill {
   position: absolute; background: var(--fundo-superficie); border-radius: 999px; padding: 6px 14px;
@@ -176,8 +176,9 @@ button { font-family: inherit; }
 }
 .slider-line { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--texto-principal); pointer-events: none; }
 .slider-handle { position: absolute; top: 50%; cursor: ew-resize; touch-action: none; pointer-events: auto; }
-.slider-handle .hit { width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; background: var(--fundo-superficie);
-  border: 2px solid var(--texto-principal); box-shadow: var(--shadow-card); display: flex; align-items: center; justify-content: center; }
+.slider-handle .hit { position: relative; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; background: var(--fundo-superficie);
+  border: 2px solid var(--texto-principal); box-shadow: var(--shadow-card); }
+.slider-handle .hit svg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: block; }
 .slider-handle:focus-visible .hit { outline: 2px solid var(--agua-principal); outline-offset: 2px; }
 
 /* ---------- Storyline ---------- */
