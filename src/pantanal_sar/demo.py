@@ -79,4 +79,4 @@ def make(seed: int = 7) -> None:
 def run() -> None:
     make()
     pipeline.run(folder=DEMO_DIR / "nisar", out_dir=DEMO_DIR, demo=True)
-    export_web.run(processed=DEMO_DIR, web_data=WEB_DATA, firms_csv=DEMO_DIR / "nisar" / "firms_demo.csv")
+    export_web.run(processed=DEMO_DIR, web_data=DEMO_DIR / "web")   # never web/data

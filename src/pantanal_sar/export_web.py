@@ -11,8 +11,9 @@ import rasterio
 from PIL import Image
 from rasterio.warp import Resampling, calculate_default_transform, reproject
 
-from .ancillary import load_firms
 from .config import PROCESSED, WEB_DATA, load_config
+
+LEGACY_OUT = PROCESSED / "web_v1"
 
 # type -> (RGBA colour, source tag, PT label, EN label)
 STYLE = {
@@ -56,10 +57,15 @@ def _db_png(path: Path, out: Path, lo=-25.0, hi=0.0):
     return bounds
 
 
-def run(processed: Path | None = None, web_data: Path | None = None, firms_csv: Path | None = None) -> Path:
+def run(processed: Path | None = None, web_data: Path | None = None) -> Path:
+    """Legacy (v1) layer export of the change pipeline, for inspection only. Fire/FIRMS left the
+    scope: no burn layers, no firms.geojson, no stats. Never writes into web/data, which belongs
+    to contract v2 (layers/ by water_series.py, series/ + manifest.json by timeseries.py)."""
     cfg = load_config()
     processed = processed or PROCESSED
-    web_data = web_data or WEB_DATA
+    web_data = web_data or LEGACY_OUT
+    if web_data.resolve() == WEB_DATA.resolve():
+        raise SystemExit("export_web (v1) nao escreve em web/data; use water-series e timeseries (contrato v2).")
     masks = processed / "masks"
     stats = json.loads((processed / "stats.json").read_text())
     web_data.mkdir(parents=True, exist_ok=True)
@@ -82,7 +88,7 @@ def run(processed: Path | None = None, web_data: Path | None = None, firms_csv: 
                                "file": f"{d}_{t}.png", "bounds": b})
     for key in stats["per_pair"]:
         d0, d1 = key.split("_")
-        for t in ("dried", "burn"):
+        for t in ("dried",):
             f = masks / f"{key}_{t}.tif"
             if f.exists():
                 rgba, src, pt, en = STYLE[t]
@@ -91,33 +97,12 @@ def run(processed: Path | None = None, web_data: Path | None = None, firms_csv: 
                                "label_pt": pt, "label_en": en,
                                "color": "rgba(%d,%d,%d,%.2f)" % (*rgba[:3], rgba[3] / 255),
                                "file": f"{key}_{t}.png", "bounds": b})
-    f = masks / "dried_then_burned.tif"
-    if f.exists():
-        rgba, src, pt, en = STYLE["dried_then_burned"]
-        b = _mask_png(f, rgba, web_data / "dried_then_burned.png")
-        layers.append({"id": "dried_then_burned", "type": "dried_then_burned", "date": None, "source": src,
-                       "label_pt": pt, "label_en": en, "color": "rgba(%d,%d,%d,%.2f)" % (*rgba[:3], rgba[3] / 255),
-                       "file": "dried_then_burned.png", "bounds": b})
-
-    pts = load_firms(firms_csv) if firms_csv else load_firms()
-    feats = [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [p["lon"], p["lat"]]},
-              "properties": {"date": p.get("acq_date"), "source": p.get("source", ""), "frp": p.get("frp")}}
-             for p in pts]
-    (web_data / "firms.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": feats}))
-
     manifest = {
-        "name": cfg["name"], "bbox": cfg["bbox"], "demo": stats.get("demo", False),
+        "name": cfg["name"], "bbox": cfg["bbox"], "demo": bool(stats.get("demo", False)),
         "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "dates": stats["dates"], "layers": layers, "firms": "firms.geojson", "stats": stats,
+        "dates": stats["dates"], "layers": layers,
     }
     out = web_data / "manifest.json"
-    if out.exists():  # keep the entry written by timeseries.py
-        try:
-            prev = json.loads(out.read_text())
-            if "water_series" in prev:
-                manifest["water_series"] = prev["water_series"]
-        except json.JSONDecodeError:
-            pass
     out.write_text(json.dumps(manifest, indent=1))
-    print(f"{len(layers)} layers, {len(feats)} hotspots -> {out}")
+    print(f"{len(layers)} layers -> {out}")
     return out
