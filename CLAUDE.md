@@ -13,7 +13,7 @@ Leia este arquivo inteiro antes de qualquer ação. Ele resume as decisões já 
 - **Só alagamentos e queimadas no Pantanal**, numa sub-região, com **interface web intuitiva**.
 - Fora do escopo: estimativa de carbono/CO2, metano, generalização para outras regiões (só como extensão futura), interferometria, contas de usuário.
 - Abordagem **estatística, não IA**: série NISAR curta, sem dados rotulados; métodos explicáveis.
-- Mensagem central: o radar em banda L vê água sob a vegetação e enxerga através da fumaça e das nuvens na temporada de fogo.
+- Mensagem central (alterado 15/11): o radar NISAR mede a água aberta mesmo sob nuvem e fumaça; mostrou a recessão da água na seca de 2026. **Não dizer que o método vê água sob a vegetação** (só mede água aberta; auditoria R5).
 - Relação água e fogo: reportar **associação observada, não causa**.
 
 ## Fontes de dados (só NASA) e justificativa
