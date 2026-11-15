@@ -1,15 +1,28 @@
 # Considerações do hackathon
 
-## Checklist de submissão
+## Checklist de submissão (alterado, 15/11 01:20)
 
-- [ ] Repositório público com licença aberta (Apache-2.0, padrão do evento) e README
-- [ ] Toda fonte, dado, biblioteca e imagem citados (abaixo)
-- [ ] Conteúdo original ou com licença aberta documentada
-- [ ] Nenhum menor de 18 anos reconhecível em vídeo ou imagem
-- [ ] Uso de IA declarado (README, seção "Use of AI")
-- [ ] Nenhum dado de demonstração (`demo: true`) na versão final do mapa
-- [ ] Hipótese sobre os motores da mudança explicada, sem afirmar causalidade
-- [ ] Limitações declaradas (produto NISAR provisório, série curta, MCD64A1 até setembro)
+Feito:
+- [x] Repositório público com licença Apache-2.0 e README atualizado (PR #1)
+- [x] Fontes, dados e bibliotecas citados, com DOIs oficiais conferidos no CMR
+- [x] Uso de IA declarado (README, seção "Use of AI")
+- [x] Nenhum dado de demonstração em `web/data/` (`demo: false`)
+- [x] Limitações declaradas (README e `metrics.limitations_pt`)
+- [x] Auditoria independente dos dados e reprodutibilidade (`docs/DATA_REVIEW.md`)
+- [x] Workflow do GitHub Pages (`.github/workflows/pages.yml`)
+
+Falta (time dev):
+- [ ] Mergear o PR #1 na main (Victor, até 08:00)
+- [ ] Habilitar Pages: Settings > Pages > Source: GitHub Actions (Victor, até 08:00)
+- [ ] `web/js/app.js` ler o contrato v2, guia em `web/README.md` (frontend, até 09:00)
+- [ ] Gráfico: área medida, faixa de 95%, faixa do método; projeção só em % com faixa (frontend, até 12:00)
+- [ ] Painel de limitações a partir de `metrics.limitations_pt` (frontend, até 12:00)
+- [ ] Conferir o site publicado com `demo: false` e congelar o código (todos, 14:00)
+
+Falta (apresentação):
+- [ ] Conferir campos e limites do formulário de 2026
+- [ ] Slides e vídeo (16:00); nenhum menor de 18 anos reconhecível
+- [ ] Não dizer "anomalia" nem "vê água sob a vegetação"; projeção sempre rotulada
 - [ ] Submeter até domingo 15/11 às 17:00 (prazo oficial 23:59)
 
 ## O que o enunciado pede e onde está
