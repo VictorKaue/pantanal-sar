@@ -3,68 +3,192 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pantanal SAR · água e fogo</title>
-<meta name="description" content="Mapa interativo do recuo das cheias e das queimadas no Pantanal com radar NISAR (banda L), FIRMS, MCD64A1 e HLS.">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<title>Wetland Pulse · Pantanal água e fogo</title>
+<meta name="description" content="Série temporal de água do Pantanal modelada com Prophet a partir do radar NISAR (banda L), com mapa de contexto e storyline do desafio Dancing with the SARs.">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div id="map" aria-label="Mapa"></div>
 
-<aside id="panel">
-  <header>
-    <h1>Pantanal: água e fogo</h1>
-    <p class="sub">O radar NISAR (banda L) vê a água sob a vegetação e enxerga através da fumaça e das nuvens.</p>
-  </header>
-
-  <div id="banner" class="banner" hidden>DADOS SINTÉTICOS DE DEMONSTRAÇÃO. Não são resultados reais.</div>
-  <div id="empty" class="muted">Sem dados. Rode <code>python -m pantanal_sar.cli export</code> (ou <code>demo</code>).</div>
-
-  <section id="when" hidden>
-    <h2>Data da passagem</h2>
-    <div class="stepper">
-      <button id="prev" type="button" aria-label="Data anterior">&lsaquo;</button>
-      <strong id="dateLabel">-</strong>
-      <button id="next" type="button" aria-label="Próxima data">&rsaquo;</button>
+<header id="topbar">
+  <div class="brand">
+    <svg class="mark" width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+      <circle cx="15" cy="15" r="14" fill="none" stroke="var(--marca-primaria)" stroke-width="2"/>
+      <circle cx="15" cy="15" r="8" fill="none" stroke="var(--agua-principal)" stroke-width="2"/>
+      <circle cx="15" cy="15" r="2.5" fill="var(--marca-primaria)"/>
+    </svg>
+    <div class="wordmark">
+      <strong>Wetland Pulse</strong>
+      <span>Pantanal · água medida com NISAR</span>
     </div>
-    <input id="date" type="range" min="0" max="0" value="0" aria-label="Data">
-    <div id="ticks" class="ticks"></div>
-    <p id="period" class="muted"></p>
-  </section>
+  </div>
 
-  <section id="cards" class="cards" hidden></section>
+  <nav id="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="serie">Série temporal</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="mapa">Mapa</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="story">Storyline</button>
+  </nav>
 
-  <section id="layersBox" hidden>
-    <h2>Camadas</h2>
-    <div id="layers"></div>
-    <label class="layer">
-      <input type="checkbox" id="firms" checked>
-      <span class="sw dot" style="background:#ffb000"></span>
-      <span>Focos de fogo no período</span>
-      <span class="tag obs">Observado (FIRMS)</span>
-    </label>
-    <label class="opacity">Opacidade <input id="opacity" type="range" min="0.2" max="1" step="0.05" value="0.9"></label>
-  </section>
+  <div class="topbar-right">
+    <button id="infoBtn" class="icon-btn" type="button" aria-haspopup="dialog" aria-controls="infoModal" aria-label="Sobre os dados e método">i</button>
+    <span class="badge">NASA Space Apps 2026 · Dancing with the SARs</span>
+  </div>
+</header>
 
-  <section id="analysis" hidden>
-    <h2>Água e fogo</h2>
-    <p id="analysisText"></p>
-    <p class="muted">Associação observada, não causa.</p>
-  </section>
+<!-- ===================== Série temporal ===================== -->
+<main id="view-serie" class="view active">
+  <div class="page">
+    <section class="head">
+      <div class="head-text">
+        <h1>Área de água aberta — Pantanal norte</h1>
+        <p class="sub">Trilha NISAR 132 (DHDH), 8 passagens em 2026. Modelo Prophet: detecção primeiro (observado vs. esperado), projeção de curto prazo como diferencial.</p>
+      </div>
+      <span id="statusChip" class="chip chip--ok"><span class="dot"></span><span class="label">Dentro do esperado</span></span>
+    </section>
 
-  <details>
-    <summary>Sobre os dados</summary>
-    <ul class="muted">
-      <li><b>NISAR L2 GCOV</b> (NASA/ISRO, ASF DAAC): água e cicatrizes de queimada. Produto <b>provisório</b>.</li>
-      <li><b>FIRMS</b> (NASA, MODIS e VIIRS): focos de fogo ativos.</li>
-      <li><b>MCD64A1 v061</b> e <b>HLS v2.0</b> (NASA LP DAAC): validação.</li>
-      <li>Mapa de fundo: &copy; OpenStreetMap contributors.</li>
-    </ul>
-    <p class="muted">Código Apache-2.0. Detalhes do método e citações no repositório.</p>
-  </details>
-</aside>
+    <section id="metricCards" class="metric-cards" aria-label="Indicadores da série"></section>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <section class="card chart-card">
+      <div class="chart-head">
+        <h2>Água aberta: medido, esperado e projeção (km²)</h2>
+        <div id="legend" class="legend"></div>
+      </div>
+      <div id="chartBox" class="chart-box"></div>
+      <p id="validationCaption" class="muted small"></p>
+    </section>
+
+    <section class="card caveat">
+      <h2>Como ler este gráfico</h2>
+      <ul>
+        <li>A faixa sombreada é o intervalo de incerteza (80%); um ponto fora dela é uma anomalia.</li>
+        <li>A linha tracejada é projeção do modelo — não é uma nova medição do radar.</li>
+      </ul>
+      <p class="muted small">Fontes completas e método: ícone "i" no topo.</p>
+    </section>
+  </div>
+</main>
+
+<!-- ===================== Mapa ===================== -->
+<main id="view-mapa" class="view">
+  <div class="map-body">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <h1>Área de estudo</h1>
+        <p class="sub">Pantanal norte (MT) · Trilha NISAR 132 (ascendente) · Frame 169</p>
+        <p class="sub">bbox -58.3, -17.5, -57.3, -16.5</p>
+        <div class="divider"></div>
+        <h2>Comparar datas</h2>
+        <p class="sub">Escolha a passagem da esquerda (E) e da direita (D) da linha — ou arraste a régua no mapa.</p>
+        <div id="dateList" class="date-list"></div>
+      </div>
+      <p class="muted small">Ilustração esquemática da área de estudo e da geometria da trilha NISAR — não é imagem de satélite.</p>
+    </aside>
+    <div class="map-canvas" id="mapCanvas"></div>
+  </div>
+</main>
+
+<!-- ===================== Storyline ===================== -->
+<main id="view-story" class="view">
+  <div class="page">
+    <h1>Storyline — Dancing with the SARs</h1>
+    <p class="sub">A leitura guiada do desafio: o que o NISAR detectou, por que pode ter acontecido, como o radar enxerga isso e o que vem a seguir.</p>
+
+    <ol class="steps">
+      <li class="step step--active">
+        <div class="step-head"><span class="step-num">1</span><h2>O que aconteceu</h2></div>
+        <div class="card step-card">
+          <p>Entre 17 jul e 21 out de 2026, a água aberta medida pelo NISAR (trilha 132) caiu de 376&nbsp;km² para 254&nbsp;km² — uma retração de cerca de 30&nbsp;km²/mês. O modelo Prophet confirma a tendência de queda e sinaliza 2 passagens como anomalias. Detalhes na aba "Série temporal".</p>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-head"><span class="step-num">2</span><h2>Por que pode ter mudado</h2></div>
+        <div class="card step-card">
+          <div class="pair-cards">
+            <div class="mini-card">
+              <span class="tag" style="color:var(--agua-principal)"><span class="dot" style="background:var(--agua-principal)"></span>Hipótese 1</span>
+              <h3>Estação seca</h3>
+              <p>Jul–out é o período seco do Pantanal — a retração é consistente com o ciclo natural, não necessariamente um evento fora do comum.</p>
+            </div>
+            <div class="mini-card">
+              <span class="tag" style="color:var(--agua-clara-texto)"><span class="dot" style="background:var(--agua-clara)"></span>Hipótese 2</span>
+              <h3>Comparação histórica (fase 2)</h3>
+              <p>Com o histórico do MapBiomas calibrado via OPERA DSWx, dá para checar se este ano está fora do padrão dos últimos anos — ainda não comparável nesta fase.</p>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-head"><span class="step-num">3</span><h2>Como o radar enxerga isso</h2></div>
+        <div class="card step-card">
+          <div class="pair-cards">
+            <div class="mini-card">
+              <span class="tag" style="color:var(--agua-principal)"><span class="dot" style="background:var(--agua-principal)"></span>HH</span>
+              <h3>Água aberta</h3>
+              <p>Superfície lisa devolve pouco sinal ao sensor, por isso aparece escura em HH — é a base do limiar que define a máscara de água.</p>
+            </div>
+            <div class="mini-card">
+              <span class="tag" style="color:var(--fogo-foco)"><span class="dot" style="background:var(--fogo-foco)"></span>HV</span>
+              <h3>Vegetação alagada</h3>
+              <p>Mais sensível à estrutura da vegetação; ajuda a indicar água escondida sob o dossel, onde o HH sozinho subestima a área alagada (uso experimental).</p>
+            </div>
+          </div>
+          <div class="row-between">
+            <span class="muted small">Comparação quantitativa HH × HV</span>
+            <span class="chip chip--pending"><span class="dot"></span><span class="label">Pendente</span></span>
+          </div>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-head"><span class="step-num">4</span><h2>O que vem a seguir</h2></div>
+        <div class="card step-card">
+          <p>Próxima passagem (projeção): 198&nbsp;km² em 2 nov 2026, intervalo 144–258&nbsp;km². Fase 2 vai trazer o histórico do MapBiomas (calibrado via OPERA DSWx) para checar se esse ano foge do padrão dos últimos anos.</p>
+        </div>
+      </li>
+    </ol>
+
+    <p class="muted small">Essa é a leitura resumida do desafio. Números e gráfico estão em "Série temporal", geografia e comparação visual em "Mapa". Fontes, método e licença: ícone "i" no topo.</p>
+  </div>
+</main>
+
+<!-- ===================== Modal: Sobre os dados ===================== -->
+<div id="infoModal" class="modal-backdrop" hidden>
+  <div class="modal card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h2 id="modalTitle">Sobre os dados e método</h2>
+      <button class="icon-btn" id="modalCloseX" type="button" aria-label="Fechar">×</button>
+    </div>
+    <p class="muted small">Toda fonte usada no protótipo, o que cada uma faz e o que ainda está pendente de rodar com dado real.</p>
+
+    <div class="card nested">
+      <h3>Fontes</h3>
+      <div class="evidence-row">
+        <div><strong>NISAR GCOV · trilha 132 (ASF)</strong><p class="muted small">Núcleo: água e cicatriz de queimada por passagem. Produto provisório.</p></div>
+        <span class="chip chip--primary"><span class="dot"></span><span class="label">Sinal principal</span></span>
+      </div>
+      <div class="evidence-row">
+        <div><strong>MapBiomas Água</strong><p class="muted small">Histórico anual (licença CC-BY) — entra na fase 2, via ponte de calibração com OPERA DSWx.</p></div>
+        <span class="chip chip--pending"><span class="dot"></span><span class="label">Pendente</span></span>
+      </div>
+    </div>
+
+    <div class="card nested">
+      <h3>Método</h3>
+      <ul>
+        <li>Fase 1 (atual): série só com NISAR 2026 (trilha 132). Prophet com tendência + pontos de mudança, sem sazonalidade anual (menos de 1 ano de histórico).</li>
+        <li>Fase 2 (planejada): estender com o histórico do MapBiomas Água, calibrado via OPERA DSWx-HLS como ponte (MapBiomas ↔ DSWx em 2025, DSWx ↔ NISAR em 2026).</li>
+      </ul>
+    </div>
+
+    <div class="card nested">
+      <h3>Licença e uso de IA</h3>
+      <p class="muted small">Código sob licença Apache-2.0. Este protótipo de interface foi desenhado com apoio de IA a partir do design system do time. Dados do MapBiomas usados sob licença CC-BY quando incorporados (fase 2). Mapa de fundo ilustrativo, não é imagem de satélite.</p>
+    </div>
+
+    <button class="btn btn--secondary" id="modalCloseBtn" type="button">Fechar</button>
+  </div>
+</div>
+
 <script src="js/app.js"></script>
+<script src="js/series.js"></script>
+<script src="js/mapa.js"></script>
 </body>
 </html>
