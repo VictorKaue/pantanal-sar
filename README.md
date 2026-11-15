@@ -118,9 +118,10 @@ made the scope and method decisions.
 
 ## Data citations
 
-NISAR L2 GCOV Provisional V1 (NASA/JPL, ISRO; ASF DAAC) · OPERA DSWx-HLS V1, OPERA DSWx-S1 V1,
-OPERA RTC-S1 V1 (NASA/JPL OPERA project; PO.DAAC and ASF DAAC; derived from Copernicus
-Sentinel-1 and Harmonized Landsat Sentinel-2) · MapBiomas Água Collection 5 (CC BY 4.0).
+NISAR L2 GCOV Provisional V1 (NASA/JPL, ISRO; ASF DAAC; doi:10.5067/NIL2GCOV-P1) · OPERA DSWx-HLS V1
+(doi:10.5067/OPDSW-PL3V1), OPERA DSWx-S1 V1 (doi:10.5067/OPDSWS1-L3V1), OPERA RTC-S1 V1
+(doi:10.5067/SNWG/OPERA_L2_RTC-S1_V1) (NASA/JPL OPERA project; PO.DAAC and ASF DAAC; derived from
+Copernicus Sentinel-1 and Harmonized Landsat Sentinel-2) (alterado) · MapBiomas Água Collection 5 (CC BY 4.0).
 Full citations in [NOTICE](NOTICE) and [docs/HACKATHON.md](docs/HACKATHON.md).
 Libraries: Prophet, pandas, numpy, scipy, h5py, rasterio, earthaccess, requests, Leaflet.
 

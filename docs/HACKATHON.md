@@ -22,10 +22,10 @@
 | Hipótese sobre os motores físicos | Resumo no app / vídeo (frente de narrativa) |
 | Código aberto | Este repositório |
 
-## Citações de dados (conferir DOIs antes de submeter)
+## Citações de dados (DOIs de NISAR e OPERA conferidos em 15/11) (alterado)
 
-- **NISAR L2 GCOV, Provisional V1.** NASA/JPL, ISRO. Distribuído pelo ASF DAAC. CMR concept ID `C2854338529-ASF`. https://nisar-docs.asf.alaska.edu/gcov/
-- **OPERA DSWx-HLS V1, OPERA DSWx-S1 V1, OPERA RTC-S1 V1** (alterado). NASA/JPL OPERA project, distribuídos por PO.DAAC e ASF DAAC; derivados de HLS e Copernicus Sentinel-1. Conferir DOIs nas páginas dos produtos (DSWx-HLS: doi:10.5067/OPERA/OPERA_L3_DSWX-HLS_PROVISIONAL_V1, ver NOTICE).
+- **NISAR L2 GCOV, Provisional V1.** NASA/JPL, ISRO. Distribuído pelo ASF DAAC. CMR concept ID `C2854338529-ASF`. doi:10.5067/NIL2GCOV-P1 (alterado). https://nisar-docs.asf.alaska.edu/gcov/
+- **OPERA DSWx-HLS V1, OPERA DSWx-S1 V1, OPERA RTC-S1 V1** (alterado). NASA/JPL OPERA project, distribuídos por PO.DAAC (DSWx) e ASF DAAC (RTC-S1); derivados de HLS e Copernicus Sentinel-1. DOIs conferidos no CMR em 15/11/2026: DSWx-HLS doi:10.5067/OPDSW-PL3V1 · DSWx-S1 doi:10.5067/OPDSWS1-L3V1 · RTC-S1 doi:10.5067/SNWG/OPERA_L2_RTC-S1_V1.
 - **MapBiomas Água, Coleção 5** (alterado). Projeto MapBiomas, CC BY 4.0. Carregador pronto, não usado nos resultados.
 - **Bibliotecas novas** (alterado): Prophet (MIT), pandas (BSD-3).
 - Fontes abaixo (MCD64A1, HLS, FIRMS) eram do escopo antigo de queimadas e **não são usadas** nos resultados atuais (alterado).

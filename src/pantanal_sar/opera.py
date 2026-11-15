@@ -7,7 +7,7 @@ junta os tiles/sensores do mesmo dia e agrega por mes (mediana das datas validas
 
 Classes WTR: 0 nao agua, 1 agua aberta, 2 agua parcial, 252 neve/gelo, 253 nuvem/
 sombra, 254 oceano (mascara), 255 fill. "Claro" = classes 0, 1, 2.
-Dados: NASA OPERA / PO.DAAC, OPERA_L3_DSWX-HLS_V1, https://doi.org/10.5067/OPERA/OPERA_L3_DSWX-HLS_PROVISIONAL_V1
+Dados: NASA OPERA / PO.DAAC, OPERA_L3_DSWX-HLS_V1, https://doi.org/10.5067/OPDSW-PL3V1
 """
 
 from __future__ import annotations

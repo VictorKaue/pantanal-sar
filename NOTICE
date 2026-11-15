@@ -6,7 +6,7 @@ This product was built for the NASA Space Apps Challenge 2026
 (see LICENSE).
 
 Data used (not redistributed in this repository; fetched at run time):
-- NISAR L2 GCOV Provisional V1, NASA/JPL and ISRO, distributed by ASF DAAC.
+- NISAR L2 GCOV Provisional V1, NASA/JPL and ISRO, distributed by ASF DAAC (doi:10.5067/NIL2GCOV-P1) (alterado).
 - MCD64A1 v061, NASA LP DAAC (doi:10.5067/MODIS/MCD64A1.061).
 - HLS L30/S30 v2.0, NASA LP DAAC (doi:10.5067/HLS/HLSL30.002, doi:10.5067/HLS/HLSS30.002).
 - FIRMS (MODIS and VIIRS active fires), NASA LANCE/FIRMS.
@@ -21,4 +21,7 @@ Annual and Monthly Water Surface Maps of Brazil (1985-2025), accessed via Google
 (projects/mapbiomas-public/assets/brazil/water/collection5/...). License CC BY 4.0.
 https://plataforma.agua.mapbiomas.org/  (confirmar o texto de citacao oficial em brasil.mapbiomas.org/en/citar-dados)
 
-NASA OPERA DSWx-HLS (OPERA_L3_DSWX-HLS_V1), JPL/PO.DAAC: mapas de agua derivados de HLS, usados como ponte de calibracao (src/pantanal_sar/opera.py). Citar: OPERA Project, "OPERA Dynamic Surface Water Extent from Harmonized Landsat Sentinel-2 (Version 1)", NASA PO.DAAC, https://doi.org/10.5067/OPERA/OPERA_L3_DSWX-HLS_PROVISIONAL_V1 (alterado)
+NASA OPERA (JPL; PO.DAAC e ASF DAAC), derivados de HLS e Copernicus Sentinel-1 (alterado). DOIs conferidos no CMR em 15/11/2026:
+- OPERA DSWx-HLS V1 (OPERA_L3_DSWX-HLS_V1), ponte de calibracao (src/pantanal_sar/opera.py). OPERA, "OPERA Dynamic Surface Water Extent from Harmonized Landsat Sentinel-2 (Version 1)", PO.DAAC, https://doi.org/10.5067/OPDSW-PL3V1
+- OPERA DSWx-S1 V1 (OPERA_L3_DSWX-S1_V1), validacao em banda C (src/pantanal_sar/opera_s1.py). OPERA, "OPERA Dynamic Surface Water Extent from Sentinel-1 product (Version 1)", PO.DAAC, https://doi.org/10.5067/OPDSWS1-L3V1
+- OPERA RTC-S1 V1 (OPERA_L2_RTC-S1_V1), retroespalhamento em banda C (src/pantanal_sar/s1_rtc.py). OPERA, "OPERA Radiometric Terrain Corrected SAR Backscatter from Sentinel-1 validated product (Version 1)", ASF DAAC, https://doi.org/10.5067/SNWG/OPERA_L2_RTC-S1_V1

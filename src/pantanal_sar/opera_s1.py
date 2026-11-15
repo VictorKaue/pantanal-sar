@@ -4,7 +4,7 @@ So a camada B01_WTR, recortada ao bbox na grade nativa (EPSG:32721, 30 m). Cober
 a partir de 2024-08, sem jul-ago/2026. Usado para validar a agua do Sentinel-1/NISAR.
 WTR: 0 nao agua, 1 agua aberta, 2 agua parcial, 3 vegetacao inundada, 250 mascara HAND,
 251 layover/sombra, 252 neve, 253 nuvem, 255 fill. Valido = 0..3.
-Dados: NASA OPERA / PO.DAAC, OPERA_L3_DSWX-S1_V1, https://doi.org/10.5067/OPERA/OPERA_L3_DSWX-S1_PROVISIONAL_V1
+Dados: NASA OPERA / PO.DAAC, OPERA_L3_DSWX-S1_V1, https://doi.org/10.5067/OPDSWS1-L3V1
 """
 
 from __future__ import annotations
