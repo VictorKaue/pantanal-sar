@@ -75,7 +75,7 @@
     const ui = $("mapOverlayUI");
     ui.innerHTML = `
       <div class="slider-line" id="sliderLine"></div>
-      <div class="slider-handle" id="sliderHandle">
+      <div class="slider-handle" id="sliderHandle" tabindex="0" role="slider" aria-label="Linha de comparação entre a passagem da esquerda e da direita" aria-valuemin="40" aria-valuenow="0">
         <div class="hit">
           <svg width="24" height="24" viewBox="0 0 24 24"><path d="M9 7 L5 12 L9 17 M15 7 L19 12 L15 17 M5 12 L19 12" fill="none" stroke="#1b2a22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
@@ -94,14 +94,29 @@
     });
     handle.addEventListener("pointerup", () => { dragging = false; });
     handle.addEventListener("pointercancel", () => { dragging = false; });
+    handle.addEventListener("keydown", ev => {
+      const step = ev.shiftKey ? 40 : 12;
+      const rect = document.querySelector(".map-canvas").getBoundingClientRect();
+      if (ev.key === "ArrowLeft") positionSlider(currentSliderPx() - step);
+      else if (ev.key === "ArrowRight") positionSlider(currentSliderPx() + step);
+      else if (ev.key === "Home") positionSlider(40);
+      else if (ev.key === "End") positionSlider(rect.width - 40);
+      else return;
+      ev.preventDefault();
+    });
 
     positionSlider(currentSliderPx());
   }
 
   function positionSlider(px) {
+    const rect = document.querySelector(".map-canvas").getBoundingClientRect();
+    px = Math.max(40, Math.min(rect.width - 40, px));
     sliderPx = px;
     $("sliderLine").style.left = px + "px";
-    $("sliderHandle").style.left = px + "px";
+    const handle = $("sliderHandle");
+    handle.style.left = px + "px";
+    handle.setAttribute("aria-valuemax", String(Math.round(rect.width - 40)));
+    handle.setAttribute("aria-valuenow", String(Math.round(px)));
     applyClip(px);
   }
 
