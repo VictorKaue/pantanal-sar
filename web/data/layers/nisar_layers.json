@@ -1,0 +1,394 @@
+[
+ {
+  "id": "2026-07-17_nisar_hh",
+  "type": "backscatter",
+  "date": "2026-07-17",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Radar NISAR (HH, dB)",
+  "label_en": "NISAR radar (HH, dB)",
+  "file": "layers/2026-07-17_nisar_hh.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "value_range_db": [
+   -25.0,
+   0.0
+  ],
+  "resolution_deg": 0.001
+ },
+ {
+  "id": "2026-07-17_nisar_open_water",
+  "type": "open_water",
+  "date": "2026-07-17",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Água aberta (NISAR)",
+  "label_en": "Open water (NISAR)",
+  "color": "rgba(30,110,230,0.75)",
+  "file": "layers/2026-07-17_nisar_open_water.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "method": "HH<-16.75dB",
+  "water_km2": 376.49,
+  "resolution_deg": 0.0005
+ },
+ {
+  "id": "2026-08-10_nisar_hh",
+  "type": "backscatter",
+  "date": "2026-08-10",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Radar NISAR (HH, dB)",
+  "label_en": "NISAR radar (HH, dB)",
+  "file": "layers/2026-08-10_nisar_hh.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "value_range_db": [
+   -25.0,
+   0.0
+  ],
+  "resolution_deg": 0.001
+ },
+ {
+  "id": "2026-08-10_nisar_open_water",
+  "type": "open_water",
+  "date": "2026-08-10",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Água aberta (NISAR)",
+  "label_en": "Open water (NISAR)",
+  "color": "rgba(30,110,230,0.75)",
+  "file": "layers/2026-08-10_nisar_open_water.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "method": "HH<-16.75dB",
+  "water_km2": 258.26,
+  "resolution_deg": 0.0005
+ },
+ {
+  "id": "2026-08-22_nisar_hh",
+  "type": "backscatter",
+  "date": "2026-08-22",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Radar NISAR (HH, dB)",
+  "label_en": "NISAR radar (HH, dB)",
+  "file": "layers/2026-08-22_nisar_hh.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "value_range_db": [
+   -25.0,
+   0.0
+  ],
+  "resolution_deg": 0.001
+ },
+ {
+  "id": "2026-08-22_nisar_open_water",
+  "type": "open_water",
+  "date": "2026-08-22",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Água aberta (NISAR)",
+  "label_en": "Open water (NISAR)",
+  "color": "rgba(30,110,230,0.75)",
+  "file": "layers/2026-08-22_nisar_open_water.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "method": "HH<-16.75dB",
+  "water_km2": 210.43,
+  "resolution_deg": 0.0005
+ },
+ {
+  "id": "2026-09-03_nisar_hh",
+  "type": "backscatter",
+  "date": "2026-09-03",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Radar NISAR (HH, dB)",
+  "label_en": "NISAR radar (HH, dB)",
+  "file": "layers/2026-09-03_nisar_hh.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "value_range_db": [
+   -25.0,
+   0.0
+  ],
+  "resolution_deg": 0.001
+ },
+ {
+  "id": "2026-09-03_nisar_open_water",
+  "type": "open_water",
+  "date": "2026-09-03",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Água aberta (NISAR)",
+  "label_en": "Open water (NISAR)",
+  "color": "rgba(30,110,230,0.75)",
+  "file": "layers/2026-09-03_nisar_open_water.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "method": "HH<-16.75dB",
+  "water_km2": 253.02,
+  "resolution_deg": 0.0005
+ },
+ {
+  "id": "2026-09-15_nisar_hh",
+  "type": "backscatter",
+  "date": "2026-09-15",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Radar NISAR (HH, dB)",
+  "label_en": "NISAR radar (HH, dB)",
+  "file": "layers/2026-09-15_nisar_hh.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "value_range_db": [
+   -25.0,
+   0.0
+  ],
+  "resolution_deg": 0.001
+ },
+ {
+  "id": "2026-09-15_nisar_open_water",
+  "type": "open_water",
+  "date": "2026-09-15",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Água aberta (NISAR)",
+  "label_en": "Open water (NISAR)",
+  "color": "rgba(30,110,230,0.75)",
+  "file": "layers/2026-09-15_nisar_open_water.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "method": "HH<-16.75dB",
+  "water_km2": 240.48,
+  "resolution_deg": 0.0005
+ },
+ {
+  "id": "2026-09-27_nisar_hh",
+  "type": "backscatter",
+  "date": "2026-09-27",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Radar NISAR (HH, dB)",
+  "label_en": "NISAR radar (HH, dB)",
+  "file": "layers/2026-09-27_nisar_hh.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "value_range_db": [
+   -25.0,
+   0.0
+  ],
+  "resolution_deg": 0.001
+ },
+ {
+  "id": "2026-09-27_nisar_open_water",
+  "type": "open_water",
+  "date": "2026-09-27",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Água aberta (NISAR)",
+  "label_en": "Open water (NISAR)",
+  "color": "rgba(30,110,230,0.75)",
+  "file": "layers/2026-09-27_nisar_open_water.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "method": "HH<-16.75dB",
+  "water_km2": 179.55,
+  "resolution_deg": 0.0005
+ },
+ {
+  "id": "2026-10-09_nisar_hh",
+  "type": "backscatter",
+  "date": "2026-10-09",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Radar NISAR (HH, dB)",
+  "label_en": "NISAR radar (HH, dB)",
+  "file": "layers/2026-10-09_nisar_hh.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "value_range_db": [
+   -25.0,
+   0.0
+  ],
+  "resolution_deg": 0.001
+ },
+ {
+  "id": "2026-10-09_nisar_open_water",
+  "type": "open_water",
+  "date": "2026-10-09",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Água aberta (NISAR)",
+  "label_en": "Open water (NISAR)",
+  "color": "rgba(30,110,230,0.75)",
+  "file": "layers/2026-10-09_nisar_open_water.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "method": "HH<-16.75dB",
+  "water_km2": 257.14,
+  "resolution_deg": 0.0005
+ },
+ {
+  "id": "2026-10-21_nisar_hh",
+  "type": "backscatter",
+  "date": "2026-10-21",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Radar NISAR (HH, dB)",
+  "label_en": "NISAR radar (HH, dB)",
+  "file": "layers/2026-10-21_nisar_hh.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "value_range_db": [
+   -25.0,
+   0.0
+  ],
+  "resolution_deg": 0.001
+ },
+ {
+  "id": "2026-10-21_nisar_open_water",
+  "type": "open_water",
+  "date": "2026-10-21",
+  "source": "nisar",
+  "origin": "measured",
+  "label_pt": "Água aberta (NISAR)",
+  "label_en": "Open water (NISAR)",
+  "color": "rgba(30,110,230,0.75)",
+  "file": "layers/2026-10-21_nisar_open_water.png",
+  "bounds": [
+   [
+    -17.5,
+    -58.3
+   ],
+   [
+    -16.5,
+    -57.3
+   ]
+  ],
+  "method": "HH<-16.75dB",
+  "water_km2": 254.23,
+  "resolution_deg": 0.0005
+ }
+]

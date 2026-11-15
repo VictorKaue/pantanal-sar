@@ -1,520 +1,478 @@
 {
- "name": "pantanal-norte",
- "bbox": [
-  -58.3,
-  -17.5,
-  -57.3,
-  -16.5
+ "schema_version": 2,
+ "demo": false,
+ "generated": "2026-11-15T04:06:25+00:00",
+ "aoi": {
+  "name": "pantanal-norte",
+  "bbox": [
+   -58.3,
+   -17.5,
+   -57.3,
+   -16.5
+  ],
+  "area_km2": 11823.9
+ },
+ "sources": [
+  {
+   "id": "nisar",
+   "label_pt": "Medido (NISAR)",
+   "sensor": "NISAR L-band",
+   "product": "NISAR_L2_GCOV_PROVISIONAL_V1",
+   "citation": "NASA/ISRO NISAR L2 GCOV (provisório), distribuído pelo ASF DAAC",
+   "n_obs": 8,
+   "first": "2026-07-17",
+   "last": "2026-10-21",
+   "calibrated": true,
+   "skill": null
+  },
+  {
+   "id": "opera_dswx_hls",
+   "label_pt": "Observado (OPERA DSWx-HLS)",
+   "sensor": "HLS optical",
+   "product": "OPERA_L3_DSWX-HLS_V1",
+   "citation": "OPERA Project, NASA JPL. DSWx-HLS v1 (Landsat/Sentinel-2 via HLS)",
+   "n_obs": 169,
+   "first": "2023-01-06",
+   "last": "2026-11-01",
+   "calibrated": false,
+   "skill": -0.6745380795817655
+  },
+  {
+   "id": "opera_dswx_s1",
+   "label_pt": "Observado (OPERA DSWx-S1)",
+   "sensor": "Sentinel-1 C-band",
+   "product": "OPERA_L3_DSWX-S1_V1",
+   "citation": "OPERA Project, NASA JPL. DSWx-S1 v1 (Copernicus Sentinel-1)",
+   "n_obs": 64,
+   "first": "2024-08-28",
+   "last": "2026-11-05",
+   "calibrated": false,
+   "skill": -0.3100211194512337
+  },
+  {
+   "id": "s1_rtc",
+   "label_pt": "Observado (Sentinel-1)",
+   "sensor": "Sentinel-1 C-band",
+   "product": "OPERA_L2_RTC-S1_V1",
+   "citation": "OPERA Project, NASA JPL. RTC-S1 v1 (Copernicus Sentinel-1), distribuído pelo ASF DAAC",
+   "n_obs": 109,
+   "first": "2023-01-06",
+   "last": "2026-11-05",
+   "calibrated": false,
+   "skill": 0.07198379275142064
+  }
  ],
- "demo": true,
- "generated": "2026-11-14T20:54:25+00:00",
- "dates": [
-  "2026-07-05",
-  "2026-08-22",
-  "2026-09-27",
-  "2026-10-21"
- ],
+ "series": {
+  "observations": "observations.json",
+  "model": "model.json",
+  "metrics": "metrics.json"
+ },
  "layers": [
   {
-   "id": "2026-07-05_HH",
+   "id": "2026-07-17_nisar_hh",
    "type": "backscatter",
-   "date": "2026-07-05",
-   "source": "measured",
+   "date": "2026-07-17",
+   "source": "nisar",
+   "origin": "measured",
    "label_pt": "Radar NISAR (HH, dB)",
    "label_en": "NISAR radar (HH, dB)",
-   "file": "2026-07-05_HH.png",
+   "file": "layers/2026-07-17_nisar_hh.png",
    "bounds": [
     [
-     -17.499999999999996,
-     -58.306884919610106
+     -17.5,
+     -58.3
     ],
     [
-     -16.499999999999996,
-     -57.299384919610105
+     -16.5,
+     -57.3
     ]
-   ]
+   ],
+   "value_range_db": [
+    -25.0,
+    0.0
+   ],
+   "resolution_deg": 0.001
   },
   {
-   "id": "2026-07-05_open_water",
+   "id": "2026-07-17_nisar_open_water",
    "type": "open_water",
-   "date": "2026-07-05",
-   "source": "measured",
-   "label_pt": "Água aberta",
-   "label_en": "Open water",
+   "date": "2026-07-17",
+   "source": "nisar",
+   "origin": "measured",
+   "label_pt": "Água aberta (NISAR)",
+   "label_en": "Open water (NISAR)",
    "color": "rgba(30,110,230,0.75)",
-   "file": "2026-07-05_open_water.png",
+   "file": "layers/2026-07-17_nisar_open_water.png",
    "bounds": [
     [
-     -17.499999999999996,
-     -58.306884919610106
+     -17.5,
+     -58.3
     ],
     [
-     -16.499999999999996,
-     -57.299384919610105
+     -16.5,
+     -57.3
     ]
-   ]
+   ],
+   "method": "HH<-16.75dB",
+   "water_km2": 376.49,
+   "resolution_deg": 0.0005
   },
   {
-   "id": "2026-07-05_flooded_veg",
-   "type": "flooded_veg",
-   "date": "2026-07-05",
-   "source": "measured",
-   "label_pt": "Vegetação alagada (experimental)",
-   "label_en": "Flooded vegetation (experimental)",
-   "color": "rgba(0,170,160,0.75)",
-   "file": "2026-07-05_flooded_veg.png",
-   "bounds": [
-    [
-     -17.499999999999996,
-     -58.306884919610106
-    ],
-    [
-     -16.499999999999996,
-     -57.299384919610105
-    ]
-   ]
-  },
-  {
-   "id": "2026-08-22_HH",
+   "id": "2026-08-10_nisar_hh",
    "type": "backscatter",
-   "date": "2026-08-22",
-   "source": "measured",
+   "date": "2026-08-10",
+   "source": "nisar",
+   "origin": "measured",
    "label_pt": "Radar NISAR (HH, dB)",
    "label_en": "NISAR radar (HH, dB)",
-   "file": "2026-08-22_HH.png",
+   "file": "layers/2026-08-10_nisar_hh.png",
    "bounds": [
     [
-     -17.499999999999996,
-     -58.306884919610106
+     -17.5,
+     -58.3
     ],
     [
-     -16.499999999999996,
-     -57.299384919610105
+     -16.5,
+     -57.3
     ]
-   ]
+   ],
+   "value_range_db": [
+    -25.0,
+    0.0
+   ],
+   "resolution_deg": 0.001
   },
   {
-   "id": "2026-08-22_open_water",
+   "id": "2026-08-10_nisar_open_water",
    "type": "open_water",
-   "date": "2026-08-22",
-   "source": "measured",
-   "label_pt": "Água aberta",
-   "label_en": "Open water",
+   "date": "2026-08-10",
+   "source": "nisar",
+   "origin": "measured",
+   "label_pt": "Água aberta (NISAR)",
+   "label_en": "Open water (NISAR)",
    "color": "rgba(30,110,230,0.75)",
-   "file": "2026-08-22_open_water.png",
+   "file": "layers/2026-08-10_nisar_open_water.png",
    "bounds": [
     [
-     -17.499999999999996,
-     -58.306884919610106
+     -17.5,
+     -58.3
     ],
     [
-     -16.499999999999996,
-     -57.299384919610105
+     -16.5,
+     -57.3
     ]
-   ]
+   ],
+   "method": "HH<-16.75dB",
+   "water_km2": 258.26,
+   "resolution_deg": 0.0005
   },
   {
-   "id": "2026-08-22_flooded_veg",
-   "type": "flooded_veg",
-   "date": "2026-08-22",
-   "source": "measured",
-   "label_pt": "Vegetação alagada (experimental)",
-   "label_en": "Flooded vegetation (experimental)",
-   "color": "rgba(0,170,160,0.75)",
-   "file": "2026-08-22_flooded_veg.png",
-   "bounds": [
-    [
-     -17.499999999999996,
-     -58.306884919610106
-    ],
-    [
-     -16.499999999999996,
-     -57.299384919610105
-    ]
-   ]
-  },
-  {
-   "id": "2026-09-27_HH",
+   "id": "2026-08-22_nisar_hh",
    "type": "backscatter",
-   "date": "2026-09-27",
-   "source": "measured",
+   "date": "2026-08-22",
+   "source": "nisar",
+   "origin": "measured",
    "label_pt": "Radar NISAR (HH, dB)",
    "label_en": "NISAR radar (HH, dB)",
-   "file": "2026-09-27_HH.png",
+   "file": "layers/2026-08-22_nisar_hh.png",
    "bounds": [
     [
-     -17.499999999999996,
-     -58.306884919610106
+     -17.5,
+     -58.3
     ],
     [
-     -16.499999999999996,
-     -57.299384919610105
+     -16.5,
+     -57.3
     ]
-   ]
+   ],
+   "value_range_db": [
+    -25.0,
+    0.0
+   ],
+   "resolution_deg": 0.001
   },
   {
-   "id": "2026-09-27_open_water",
+   "id": "2026-08-22_nisar_open_water",
    "type": "open_water",
-   "date": "2026-09-27",
-   "source": "measured",
-   "label_pt": "Água aberta",
-   "label_en": "Open water",
+   "date": "2026-08-22",
+   "source": "nisar",
+   "origin": "measured",
+   "label_pt": "Água aberta (NISAR)",
+   "label_en": "Open water (NISAR)",
    "color": "rgba(30,110,230,0.75)",
-   "file": "2026-09-27_open_water.png",
+   "file": "layers/2026-08-22_nisar_open_water.png",
    "bounds": [
     [
-     -17.499999999999996,
-     -58.306884919610106
+     -17.5,
+     -58.3
     ],
     [
-     -16.499999999999996,
-     -57.299384919610105
+     -16.5,
+     -57.3
     ]
-   ]
+   ],
+   "method": "HH<-16.75dB",
+   "water_km2": 210.43,
+   "resolution_deg": 0.0005
   },
   {
-   "id": "2026-09-27_flooded_veg",
-   "type": "flooded_veg",
-   "date": "2026-09-27",
-   "source": "measured",
-   "label_pt": "Vegetação alagada (experimental)",
-   "label_en": "Flooded vegetation (experimental)",
-   "color": "rgba(0,170,160,0.75)",
-   "file": "2026-09-27_flooded_veg.png",
-   "bounds": [
-    [
-     -17.499999999999996,
-     -58.306884919610106
-    ],
-    [
-     -16.499999999999996,
-     -57.299384919610105
-    ]
-   ]
-  },
-  {
-   "id": "2026-10-21_HH",
+   "id": "2026-09-03_nisar_hh",
    "type": "backscatter",
-   "date": "2026-10-21",
-   "source": "measured",
+   "date": "2026-09-03",
+   "source": "nisar",
+   "origin": "measured",
    "label_pt": "Radar NISAR (HH, dB)",
    "label_en": "NISAR radar (HH, dB)",
-   "file": "2026-10-21_HH.png",
+   "file": "layers/2026-09-03_nisar_hh.png",
    "bounds": [
     [
-     -17.499999999999996,
-     -58.306884919610106
+     -17.5,
+     -58.3
     ],
     [
-     -16.499999999999996,
-     -57.299384919610105
+     -16.5,
+     -57.3
     ]
-   ]
+   ],
+   "value_range_db": [
+    -25.0,
+    0.0
+   ],
+   "resolution_deg": 0.001
   },
   {
-   "id": "2026-10-21_open_water",
+   "id": "2026-09-03_nisar_open_water",
+   "type": "open_water",
+   "date": "2026-09-03",
+   "source": "nisar",
+   "origin": "measured",
+   "label_pt": "Água aberta (NISAR)",
+   "label_en": "Open water (NISAR)",
+   "color": "rgba(30,110,230,0.75)",
+   "file": "layers/2026-09-03_nisar_open_water.png",
+   "bounds": [
+    [
+     -17.5,
+     -58.3
+    ],
+    [
+     -16.5,
+     -57.3
+    ]
+   ],
+   "method": "HH<-16.75dB",
+   "water_km2": 253.02,
+   "resolution_deg": 0.0005
+  },
+  {
+   "id": "2026-09-15_nisar_hh",
+   "type": "backscatter",
+   "date": "2026-09-15",
+   "source": "nisar",
+   "origin": "measured",
+   "label_pt": "Radar NISAR (HH, dB)",
+   "label_en": "NISAR radar (HH, dB)",
+   "file": "layers/2026-09-15_nisar_hh.png",
+   "bounds": [
+    [
+     -17.5,
+     -58.3
+    ],
+    [
+     -16.5,
+     -57.3
+    ]
+   ],
+   "value_range_db": [
+    -25.0,
+    0.0
+   ],
+   "resolution_deg": 0.001
+  },
+  {
+   "id": "2026-09-15_nisar_open_water",
+   "type": "open_water",
+   "date": "2026-09-15",
+   "source": "nisar",
+   "origin": "measured",
+   "label_pt": "Água aberta (NISAR)",
+   "label_en": "Open water (NISAR)",
+   "color": "rgba(30,110,230,0.75)",
+   "file": "layers/2026-09-15_nisar_open_water.png",
+   "bounds": [
+    [
+     -17.5,
+     -58.3
+    ],
+    [
+     -16.5,
+     -57.3
+    ]
+   ],
+   "method": "HH<-16.75dB",
+   "water_km2": 240.48,
+   "resolution_deg": 0.0005
+  },
+  {
+   "id": "2026-09-27_nisar_hh",
+   "type": "backscatter",
+   "date": "2026-09-27",
+   "source": "nisar",
+   "origin": "measured",
+   "label_pt": "Radar NISAR (HH, dB)",
+   "label_en": "NISAR radar (HH, dB)",
+   "file": "layers/2026-09-27_nisar_hh.png",
+   "bounds": [
+    [
+     -17.5,
+     -58.3
+    ],
+    [
+     -16.5,
+     -57.3
+    ]
+   ],
+   "value_range_db": [
+    -25.0,
+    0.0
+   ],
+   "resolution_deg": 0.001
+  },
+  {
+   "id": "2026-09-27_nisar_open_water",
+   "type": "open_water",
+   "date": "2026-09-27",
+   "source": "nisar",
+   "origin": "measured",
+   "label_pt": "Água aberta (NISAR)",
+   "label_en": "Open water (NISAR)",
+   "color": "rgba(30,110,230,0.75)",
+   "file": "layers/2026-09-27_nisar_open_water.png",
+   "bounds": [
+    [
+     -17.5,
+     -58.3
+    ],
+    [
+     -16.5,
+     -57.3
+    ]
+   ],
+   "method": "HH<-16.75dB",
+   "water_km2": 179.55,
+   "resolution_deg": 0.0005
+  },
+  {
+   "id": "2026-10-09_nisar_hh",
+   "type": "backscatter",
+   "date": "2026-10-09",
+   "source": "nisar",
+   "origin": "measured",
+   "label_pt": "Radar NISAR (HH, dB)",
+   "label_en": "NISAR radar (HH, dB)",
+   "file": "layers/2026-10-09_nisar_hh.png",
+   "bounds": [
+    [
+     -17.5,
+     -58.3
+    ],
+    [
+     -16.5,
+     -57.3
+    ]
+   ],
+   "value_range_db": [
+    -25.0,
+    0.0
+   ],
+   "resolution_deg": 0.001
+  },
+  {
+   "id": "2026-10-09_nisar_open_water",
+   "type": "open_water",
+   "date": "2026-10-09",
+   "source": "nisar",
+   "origin": "measured",
+   "label_pt": "Água aberta (NISAR)",
+   "label_en": "Open water (NISAR)",
+   "color": "rgba(30,110,230,0.75)",
+   "file": "layers/2026-10-09_nisar_open_water.png",
+   "bounds": [
+    [
+     -17.5,
+     -58.3
+    ],
+    [
+     -16.5,
+     -57.3
+    ]
+   ],
+   "method": "HH<-16.75dB",
+   "water_km2": 257.14,
+   "resolution_deg": 0.0005
+  },
+  {
+   "id": "2026-10-21_nisar_hh",
+   "type": "backscatter",
+   "date": "2026-10-21",
+   "source": "nisar",
+   "origin": "measured",
+   "label_pt": "Radar NISAR (HH, dB)",
+   "label_en": "NISAR radar (HH, dB)",
+   "file": "layers/2026-10-21_nisar_hh.png",
+   "bounds": [
+    [
+     -17.5,
+     -58.3
+    ],
+    [
+     -16.5,
+     -57.3
+    ]
+   ],
+   "value_range_db": [
+    -25.0,
+    0.0
+   ],
+   "resolution_deg": 0.001
+  },
+  {
+   "id": "2026-10-21_nisar_open_water",
    "type": "open_water",
    "date": "2026-10-21",
-   "source": "measured",
-   "label_pt": "Água aberta",
-   "label_en": "Open water",
+   "source": "nisar",
+   "origin": "measured",
+   "label_pt": "Água aberta (NISAR)",
+   "label_en": "Open water (NISAR)",
    "color": "rgba(30,110,230,0.75)",
-   "file": "2026-10-21_open_water.png",
+   "file": "layers/2026-10-21_nisar_open_water.png",
    "bounds": [
     [
-     -17.499999999999996,
-     -58.306884919610106
+     -17.5,
+     -58.3
     ],
     [
-     -16.499999999999996,
-     -57.299384919610105
+     -16.5,
+     -57.3
     ]
-   ]
-  },
-  {
-   "id": "2026-10-21_flooded_veg",
-   "type": "flooded_veg",
-   "date": "2026-10-21",
-   "source": "measured",
-   "label_pt": "Vegetação alagada (experimental)",
-   "label_en": "Flooded vegetation (experimental)",
-   "color": "rgba(0,170,160,0.75)",
-   "file": "2026-10-21_flooded_veg.png",
-   "bounds": [
-    [
-     -17.499999999999996,
-     -58.306884919610106
-    ],
-    [
-     -16.499999999999996,
-     -57.299384919610105
-    ]
-   ]
-  },
-  {
-   "id": "2026-07-05_2026-08-22_dried",
-   "type": "dried",
-   "date": "2026-08-22",
-   "date_from": "2026-07-05",
-   "source": "measured",
-   "label_pt": "Área que secou",
-   "label_en": "Area that dried",
-   "color": "rgba(240,150,30,0.82)",
-   "file": "2026-07-05_2026-08-22_dried.png",
-   "bounds": [
-    [
-     -17.499999999999996,
-     -58.306884919610106
-    ],
-    [
-     -16.499999999999996,
-     -57.299384919610105
-    ]
-   ]
-  },
-  {
-   "id": "2026-07-05_2026-08-22_burn",
-   "type": "burn",
-   "date": "2026-08-22",
-   "date_from": "2026-07-05",
-   "source": "measured",
-   "label_pt": "Cicatriz de queimada",
-   "label_en": "Burn scar",
-   "color": "rgba(220,30,30,0.86)",
-   "file": "2026-07-05_2026-08-22_burn.png",
-   "bounds": [
-    [
-     -17.499999999999996,
-     -58.306884919610106
-    ],
-    [
-     -16.499999999999996,
-     -57.299384919610105
-    ]
-   ]
-  },
-  {
-   "id": "2026-08-22_2026-09-27_dried",
-   "type": "dried",
-   "date": "2026-09-27",
-   "date_from": "2026-08-22",
-   "source": "measured",
-   "label_pt": "Área que secou",
-   "label_en": "Area that dried",
-   "color": "rgba(240,150,30,0.82)",
-   "file": "2026-08-22_2026-09-27_dried.png",
-   "bounds": [
-    [
-     -17.499999999999996,
-     -58.306884919610106
-    ],
-    [
-     -16.499999999999996,
-     -57.299384919610105
-    ]
-   ]
-  },
-  {
-   "id": "2026-08-22_2026-09-27_burn",
-   "type": "burn",
-   "date": "2026-09-27",
-   "date_from": "2026-08-22",
-   "source": "measured",
-   "label_pt": "Cicatriz de queimada",
-   "label_en": "Burn scar",
-   "color": "rgba(220,30,30,0.86)",
-   "file": "2026-08-22_2026-09-27_burn.png",
-   "bounds": [
-    [
-     -17.499999999999996,
-     -58.306884919610106
-    ],
-    [
-     -16.499999999999996,
-     -57.299384919610105
-    ]
-   ]
-  },
-  {
-   "id": "2026-09-27_2026-10-21_dried",
-   "type": "dried",
-   "date": "2026-10-21",
-   "date_from": "2026-09-27",
-   "source": "measured",
-   "label_pt": "Área que secou",
-   "label_en": "Area that dried",
-   "color": "rgba(240,150,30,0.82)",
-   "file": "2026-09-27_2026-10-21_dried.png",
-   "bounds": [
-    [
-     -17.499999999999996,
-     -58.306884919610106
-    ],
-    [
-     -16.499999999999996,
-     -57.299384919610105
-    ]
-   ]
-  },
-  {
-   "id": "2026-09-27_2026-10-21_burn",
-   "type": "burn",
-   "date": "2026-10-21",
-   "date_from": "2026-09-27",
-   "source": "measured",
-   "label_pt": "Cicatriz de queimada",
-   "label_en": "Burn scar",
-   "color": "rgba(220,30,30,0.86)",
-   "file": "2026-09-27_2026-10-21_burn.png",
-   "bounds": [
-    [
-     -17.499999999999996,
-     -58.306884919610106
-    ],
-    [
-     -16.499999999999996,
-     -57.299384919610105
-    ]
-   ]
-  },
-  {
-   "id": "dried_then_burned",
-   "type": "dried_then_burned",
-   "date": null,
-   "source": "derived",
-   "label_pt": "Secou e depois queimou",
-   "label_en": "Dried, then burned",
-   "color": "rgba(200,0,200,0.90)",
-   "file": "dried_then_burned.png",
-   "bounds": [
-    [
-     -17.499999999999996,
-     -58.306884919610106
-    ],
-    [
-     -16.499999999999996,
-     -57.299384919610105
-    ]
-   ]
+   ],
+   "method": "HH<-16.75dB",
+   "water_km2": 254.23,
+   "resolution_deg": 0.0005
   }
  ],
- "firms": "firms.geojson",
- "stats": {
-  "aoi": "pantanal-norte",
-  "dates": [
-   "2026-07-05",
-   "2026-08-22",
-   "2026-09-27",
-   "2026-10-21"
-  ],
-  "pixel_size_m": 267.2518250330737,
-  "demo": true,
-  "per_date": {
-   "2026-07-05": {
-    "water_threshold_db": -14.0,
-    "open_water_km2": 1520.16,
-    "flooded_veg_km2": 0.22
-   },
-   "2026-08-22": {
-    "water_threshold_db": -14.0,
-    "open_water_km2": 929.8,
-    "flooded_veg_km2": 0.0
-   },
-   "2026-09-27": {
-    "water_threshold_db": -14.0,
-    "open_water_km2": 674.6,
-    "flooded_veg_km2": 0.29
-   },
-   "2026-10-21": {
-    "water_threshold_db": -14.0,
-    "open_water_km2": 612.16,
-    "flooded_veg_km2": 0.15
-   }
-  },
-  "per_pair": {
-   "2026-07-05_2026-08-22": {
-    "dried_km2": 591.54,
-    "burn_km2": 0.0,
-    "burn_hv_threshold_db": -2.8,
-    "firms_hotspots": 0,
-    "burn_confirmed_by_firms": true
-   },
-   "2026-08-22_2026-09-27": {
-    "dried_km2": 257.63,
-    "burn_km2": 232.82,
-    "burn_hv_threshold_db": -3.24,
-    "firms_hotspots": 25,
-    "burn_confirmed_by_firms": true
-   },
-   "2026-09-27_2026-10-21": {
-    "dried_km2": 64.94,
-    "burn_km2": 192.39,
-    "burn_hv_threshold_db": -3.13,
-    "firms_hotspots": 25,
-    "burn_confirmed_by_firms": true
-   }
-  },
-  "validation": {},
-  "analysis": {
-   "fire_reference": [
-    "NISAR burn scar confirmed by FIRMS"
-   ],
-   "groups_km2": {
-    "dried": 909.33,
-    "stayed_wet": 611.05,
-    "always_dry": 10259.14
-   },
-   "dried_vs_always_dry": {
-    "table": [
-     [
-      84,
-      684
-     ],
-     [
-      272,
-      8439
-     ]
-    ],
-    "sample_spacing_px": 4,
-    "haldane_corrected": false,
-    "burn_rate_a": 0.1094,
-    "burn_rate_b": 0.0312,
-    "odds_ratio": 3.81,
-    "ci95": [
-     2.947,
-     4.926
-    ],
-    "chi2_p_value": 2.7307765787318036e-27
-   },
-   "dried_vs_stayed_wet": {
-    "table": [
-     [
-      84,
-      684
-     ],
-     [
-      0,
-      520
-     ]
-    ],
-    "sample_spacing_px": 4,
-    "haldane_corrected": true,
-    "burn_rate_a": 0.1094,
-    "burn_rate_b": 0.0,
-    "odds_ratio": 128.509,
-    "ci95": [
-     7.954,
-     2076.384
-    ]
-   },
-   "dried_then_burned_km2": 101.9
-  }
- },
- "water_series": {
-  "file": "water_series.json",
-  "demo": false,
-  "generated": "2026-11-15T00:35:46+00:00",
-  "phase": 1,
-  "calibration_path": "fase1"
+ "dates": [
+  "2026-07-17",
+  "2026-08-10",
+  "2026-08-22",
+  "2026-09-03",
+  "2026-09-15",
+  "2026-09-27",
+  "2026-10-09",
+  "2026-10-21"
+ ],
+ "forecast": {
+  "source": "opera_dswx_hls",
+  "level_calibrated": false
  }
 }

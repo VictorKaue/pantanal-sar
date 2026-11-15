@@ -1,0 +1,432 @@
+{
+ "phase": 1,
+ "reference": "nisar",
+ "interval": 0.8,
+ "detection": "so NISAR, dentro da amostra (tendencia + changepoints, sem sazonalidade anual), faixa de 95%",
+ "calibration": {
+  "nisar": {
+   "a": 0.0,
+   "b": 1.0,
+   "r2": 1.0,
+   "n": 8,
+   "sd_km2": 0.0,
+   "pairing": "referencia",
+   "via": null,
+   "model": "referencia",
+   "loo_mape_pct": null,
+   "loo_const_pct": null,
+   "skill": null,
+   "skill_ci95": null,
+   "cv_target": null,
+   "k_ci95": null
+  }
+ },
+ "calibration_tests": {
+  "opera_dswx_hls": {
+   "passed": false,
+   "model": "proporcional",
+   "coef": 0.5638443292455475,
+   "a": 0.0,
+   "k_ci95": [
+    0.4537239347186538,
+    0.6494796456134516
+   ],
+   "loo_mape_pct": 24.77186715855884,
+   "loo_const_pct": 14.79325400873887,
+   "skill": -0.6745380795817655,
+   "skill_ci95": [
+    -3.330697637484341,
+    -0.20978888500404155
+   ],
+   "n": 8,
+   "cv_target": 0.20976185999740976,
+   "pairing": "+-4 d",
+   "via": null,
+   "reason": "reprovada no portao (+-4 d, n=8): proporcional: skill -0.67 < 0.1 (LOO constante 15%), IC95 do skill [-3.33, -0.21] nao exclui 0; linear: coeficiente -0.211 <= 0, skill -0.38 < 0.1 (LOO constante 15%), IC95 do skill [-1.75, -0.11] nao exclui 0"
+  },
+  "opera_dswx_s1": {
+   "passed": false,
+   "model": "proporcional",
+   "coef": 0.6920718600970922,
+   "a": 0.0,
+   "k_ci95": [
+    0.5238709203059722,
+    1.265429091385102
+   ],
+   "loo_mape_pct": 22.145500594989816,
+   "loo_const_pct": 16.90468975360225,
+   "skill": -0.3100211194512337,
+   "skill_ci95": [
+    -1.985254554115191,
+    0.507107568827747
+   ],
+   "n": 4,
+   "cv_target": 0.13489136691748244,
+   "pairing": "+-4 d",
+   "via": null,
+   "reason": "reprovada no portao (+-4 d, n=4): proporcional: n=4 < 8, skill -0.31 < 0.1 (LOO constante 17%), IC95 do skill [-1.99, 0.51] nao exclui 0; linear: n=4 < 8, coeficiente -0.141 <= 0, LOO MAPE 83% > 25%, skill -3.88 < 0.1 (LOO constante 17%), IC95 do skill [-15.58, -0.02] nao exclui 0"
+  },
+  "s1_rtc": {
+   "passed": false,
+   "model": "proporcional",
+   "coef": 1.1400959684290775,
+   "a": 0.0,
+   "k_ci95": [
+    0.953207102736003,
+    1.22235895494131
+   ],
+   "loo_mape_pct": 15.74894323251191,
+   "loo_const_pct": 16.970547614901065,
+   "skill": 0.07198379275142064,
+   "skill_ci95": [
+    -0.2725379284306446,
+    0.16880060917999
+   ],
+   "n": 7,
+   "cv_target": 0.22461300710556042,
+   "pairing": "+-4 d",
+   "via": null,
+   "reason": "reprovada no portao (+-4 d, n=7): proporcional: n=7 < 8, skill 0.07 < 0.1 (LOO constante 17%), IC95 do skill [-0.27, 0.17] nao exclui 0; linear: n=7 < 8, LOO MAPE 26% > 25%, skill -0.52 < 0.1 (LOO constante 17%), IC95 do skill [-2.71, 0.02] nao exclui 0"
+  }
+ },
+ "skill": {
+  "opera_dswx_hls": -0.6745380795817655,
+  "opera_dswx_s1": -0.3100211194512337,
+  "s1_rtc": 0.07198379275142064
+ },
+ "sources_skipped": {
+  "opera_dswx_hls": "reprovada no portao (+-4 d, n=8): proporcional: skill -0.67 < 0.1 (LOO constante 15%), IC95 do skill [-3.33, -0.21] nao exclui 0; linear: coeficiente -0.211 <= 0, skill -0.38 < 0.1 (LOO constante 15%), IC95 do skill [-1.75, -0.11] nao exclui 0",
+  "opera_dswx_s1": "reprovada no portao (+-4 d, n=4): proporcional: n=4 < 8, skill -0.31 < 0.1 (LOO constante 17%), IC95 do skill [-1.99, 0.51] nao exclui 0; linear: n=4 < 8, coeficiente -0.141 <= 0, LOO MAPE 83% > 25%, skill -3.88 < 0.1 (LOO constante 17%), IC95 do skill [-15.58, -0.02] nao exclui 0",
+  "s1_rtc": "reprovada no portao (+-4 d, n=7): proporcional: n=7 < 8, skill 0.07 < 0.1 (LOO constante 17%), IC95 do skill [-0.27, 0.17] nao exclui 0; linear: n=7 < 8, LOO MAPE 26% > 25%, skill -0.52 < 0.1 (LOO constante 17%), IC95 do skill [-2.71, 0.02] nao exclui 0"
+ },
+ "sources_missing": [
+  "mapbiomas"
+ ],
+ "detection_interval": 0.95,
+ "detection_chance": {
+  "n": 8,
+  "k_outside": 0,
+  "p_outside_each": 0.05,
+  "expected_outside": 0.4,
+  "p_at_least_k": 1.0,
+  "note_pt": "Com 8 pontos e faixa de 95%, espera-se 0.4 fora por acaso; nenhum ponto ficou fora."
+ },
+ "trend_km2_per_day": -1.010915220521387,
+ "detection_sensitivity": {
+  "central": {
+   "column": "water_km2",
+   "trend_km2_per_day": -1.010915220521387,
+   "outside": []
+  },
+  "lo": {
+   "column": "water_km2_lo",
+   "trend_km2_per_day": -0.28504769476071995,
+   "outside": []
+  },
+  "hi": {
+   "column": "water_km2_hi",
+   "trend_km2_per_day": -1.7277857081926922,
+   "outside": []
+  }
+ },
+ "trend_range_km2_per_day": {
+  "min": -1.7277857081926922,
+  "central": -1.010915220521387,
+  "max": -0.28504769476071995,
+  "available": true
+ },
+ "outside_all_thresholds": [],
+ "holdout": {
+  "desc": "ultimas 2 datas NISAR",
+  "mae_km2": 113.48241341805527,
+  "mape_pct": 44.41147853449674,
+  "n": 2
+ },
+ "n_anomalies": 0,
+ "n_reference_dates": 8,
+ "forecast_source": "opera_dswx_hls",
+ "forecast_source_reason": "opera_dswx_hls: 169 obs, 12/12 meses cobertos em 3.8 anos (minimo 10 meses e 2 anos) (escolhida)",
+ "seasonal_comparison": {
+  "amplitude_rel": {
+   "opera_dswx_hls": 0.8538644388633897,
+   "s1_rtc": 0.14354944309390957
+  },
+  "months_covered": {
+   "opera_dswx_hls": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "s1_rtc": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ]
+  },
+  "pairs": {
+   "opera_dswx_hls~s1_rtc": {
+    "corr_monthly": 0.5067774993726409,
+    "n_months": 44,
+    "corr_climatology": 0.5510589788524419,
+    "n_months_of_year": 12,
+    "conclusive": true,
+    "incomplete_sources": []
+   }
+  },
+  "coverage": {
+   "opera_dswx_hls": {
+    "complete": true,
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "n_months": 12,
+    "n_obs": 169,
+    "years": 3.8
+   },
+   "s1_rtc": {
+    "complete": true,
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "n_months": 12,
+    "n_obs": 109,
+    "years": 3.8
+   }
+  },
+  "criteria": {
+   "min_months_covered": 10,
+   "min_years": 2
+  }
+ },
+ "level_calibrated": false,
+ "forecast_base": {
+  "date": "2026-11-01",
+  "water_km2_src": 369.25516777600035,
+  "kind": "modelo (yhat na data da ultima observacao)",
+  "variant": "obs",
+  "observed_median_15d": 402.4592711809158,
+  "observed_n_15d": 4
+ },
+ "forecast_holdout": {
+  "n_train": 151,
+  "alvo_composto": {
+   "mae_km2": 41.44265708228761,
+   "mape_pct": 9.28082937764836,
+   "n": 7,
+   "coverage80": 1.0
+  },
+  "alvo_obs": {
+   "mae_km2": 79.79812353418384,
+   "mape_pct": 18.737308651298466,
+   "n": 18,
+   "coverage80": 1.0
+  },
+  "interval_scale": 0.7541206762068917
+ },
+ "forecast_variant": "obs",
+ "forecast_variants": {
+  "obs": {
+   "n_train": 151,
+   "alvo_composto": {
+    "mae_km2": 41.44265708228761,
+    "mape_pct": 9.28082937764836,
+    "n": 7,
+    "coverage80": 1.0
+   },
+   "alvo_obs": {
+    "mae_km2": 79.79812353418384,
+    "mape_pct": 18.737308651298466,
+    "n": 18,
+    "coverage80": 1.0
+   },
+   "interval_scale": 0.7541206762068917
+  },
+  "composto15": {
+   "n_train": 71,
+   "alvo_composto": {
+    "mae_km2": 179.0205876212324,
+    "mape_pct": 40.08605593578302,
+    "n": 7,
+    "coverage80": 0.5714285714285714
+   },
+   "alvo_obs": {
+    "mae_km2": 171.68433760134133,
+    "mape_pct": 36.88444734957965,
+    "n": 18,
+    "coverage80": 0.6111111111111112
+   },
+   "interval_scale": 1.1141782911130367
+  }
+ },
+ "forecast_variant_reason": "obs: MAPE 9.3%, cobertura IC80 100% (n=7); composto15: MAPE 40.1%, cobertura IC80 57% (n=7) -> obs (menor MAPE com cobertura >= 60%)",
+ "forecast_interval": {
+  "nominal": 0.8,
+  "coverage_holdout_prophet": 1.0,
+  "n_holdout": 18,
+  "scale": 0.7541206762068917,
+  "note_pt": "Faixa do Prophet ajustada pela cobertura medida no holdout de 90 d: cobertura original 100% em n=18; meia-largura x 0.75 para cobrir 80% no mesmo holdout (otimista: medido nos dados usados para ajustar)"
+ },
+ "level_method": "nivel em km2 NAO publicado (expected/lo/hi_km2 = null): fonte reprovada no portao; k proporcional indicativo 0.564 (IC95 0.454-0.649)",
+ "level_k": 0.5638443292455475,
+ "level_k_ci95": [
+  0.4537239347186538,
+  0.6494796456134516
+ ],
+ "forecast_check": {
+  "source": "s1_rtc",
+  "valid": true,
+  "skipped": null,
+  "coverage": {
+   "complete": true,
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "n_months": 12,
+   "n_obs": 109,
+   "years": 3.8
+  },
+  "n_obs": 109,
+  "last_obs": "2026-11-05",
+  "base_yhat_src": 203.86265525268263,
+  "horizon_months": [
+   11
+  ],
+  "weeks": [
+   {
+    "date": "2026-11-08",
+    "forecast_pct": -0.2460292529149366,
+    "lo80_pct": -11.154463393069403,
+    "hi80_pct": 11.143516023186638,
+    "main_pct": -1.0984232000823657,
+    "same_direction": true
+   },
+   {
+    "date": "2026-11-15",
+    "forecast_pct": -0.7916281896577115,
+    "lo80_pct": -11.869409106398287,
+    "hi80_pct": 9.8015828014147,
+    "main_pct": -1.1825938058542151,
+    "same_direction": true
+   },
+   {
+    "date": "2026-11-22",
+    "forecast_pct": -1.2962370266310974,
+    "lo80_pct": -13.047863288110683,
+    "hi80_pct": 8.895248453523763,
+    "main_pct": -0.28312768433567115,
+    "same_direction": true
+   },
+   {
+    "date": "2026-11-29",
+    "forecast_pct": -1.7639550528039116,
+    "lo80_pct": -12.847717610748443,
+    "hi80_pct": 8.953686105415093,
+    "main_pct": 1.4749406976814816,
+    "same_direction": false
+   }
+  ],
+  "forecast_pct": [
+   -0.2460292529149366,
+   -0.7916281896577115,
+   -1.2962370266310974,
+   -1.7639550528039116
+  ],
+  "same_direction": [
+   true,
+   true,
+   true,
+   false
+  ],
+  "r_seasonal": 0.5067774993726409,
+  "r_seasonal_n_months": 44
+ },
+ "forecast_seasonal": true,
+ "data_notes": {
+  "opera_dswx_hls": {
+   "normalize_coverage": {
+    "full_area_km2": 11884.287430683919
+   },
+   "outliers_dropped": {
+    "rule": "water_km2 < 0.3 x mediana movel de 31 d",
+    "dates": [
+     "2024-08-23",
+     "2024-09-12",
+     "2024-09-17",
+     "2024-09-22"
+    ]
+   }
+  }
+ },
+ "limitations_pt": [
+  "O NISAR so cobre 17/07/2026 a 21/10/2026 (estacao seca): a deteccao compara cada data com a propria serie NISAR (tendencia), sem sazonalidade anual, e a faixa de 180-376 km2 e estreita demais para calibrar bem outras fontes.",
+  "Deteccao: Com 8 pontos e faixa de 95%, espera-se 0.4 fora por acaso; nenhum ponto ficou fora. Pontos fora da faixa sao 'fora da faixa esperada', nao prova de mudanca.",
+  "Sensibilidade ao limiar do NISAR (lo=water_km2_lo, hi=water_km2_hi): tendencia de -1.73 a -0.29 km2/dia (central -1.01); fora da faixa em todos os limiares: nenhuma data. A area em km2 depende do limiar; leia valores relativos.",
+  "opera_dswx_hls: area normalizada pela cobertura valida (fracao de agua x 11884 km2), para tirar o vies de nuvem/cobertura parcial.",
+  "opera_dswx_hls: 4 linhas descartadas (water_km2 < 0.3 x mediana movel de 31 d; ex.: fumaca lida como terra): 2024-08-23, 2024-09-12, 2024-09-17, 2024-09-22.",
+  "opera_dswx_hls: sem nivel em escala NISAR (reprovada no portao (+-4 d, n=8): proporcional: skill -0.67 < 0.1 (LOO constante 15%), IC95 do skill [-3.33, -0.21] nao exclui 0; linear: coeficiente -0.211 <= 0, skill -0.38 < 0.1 (LOO constante 15%), IC95 do skill [-1.75, -0.11] nao exclui 0).",
+  "opera_dswx_s1: sem nivel em escala NISAR (reprovada no portao (+-4 d, n=4): proporcional: n=4 < 8, skill -0.31 < 0.1 (LOO constante 17%), IC95 do skill [-1.99, 0.51] nao exclui 0; linear: n=4 < 8, coeficiente -0.141 <= 0, LOO MAPE 83% > 25%, skill -3.88 < 0.1 (LOO constante 17%), IC95 do skill [-15.58, -0.02] nao exclui 0).",
+  "s1_rtc: sem nivel em escala NISAR (reprovada no portao (+-4 d, n=7): proporcional: n=7 < 8, skill 0.07 < 0.1 (LOO constante 17%), IC95 do skill [-0.27, 0.17] nao exclui 0; linear: n=7 < 8, LOO MAPE 26% > 25%, skill -0.52 < 0.1 (LOO constante 17%), IC95 do skill [-2.71, 0.02] nao exclui 0).",
+  "nisar: Quedas do NISAR em 22/08 e 27/09 nao confirmadas pelo Sentinel-1 (S1 ve ~115 km2 a mais nessas datas; S1 T039 2026 estavel 217-223 km2).",
+  "s1_rtc: a banda C (Sentinel-1) nao ve a agua rasa sob vegetacao da cheia: em T039 a amplitude sazonal e pequena (cheia 2023 de 280-300 km2 contra seca de 213 km2), enquanto o DSWx-HLS mostra cheia de 1362 km2 em 2023. Serve para a tendencia da agua aberta, nao para o tamanho da cheia.",
+  "Forma sazonal opera_dswx_hls x s1_rtc: correlacao das medias mensais 0.51 (n=44 meses), da climatologia 0.55 (n=12); amplitude relativa opera_dswx_hls 0.85, s1_rtc 0.14.",
+  "A previsao usa opera_dswx_hls na escala da propria fonte; a saida principal e a variacao relativa (%) da trajetoria do proprio modelo, frente ao valor previsto na data da ultima observacao (2026-11-01).",
+  "Previsao so em %: nivel em km2 NAO publicado (expected/lo/hi_km2 = null): fonte reprovada no portao; k proporcional indicativo 0.564 (IC95 0.454-0.649).",
+  "Faixa do Prophet ajustada pela cobertura medida no holdout de 90 d: cobertura original 100% em n=18; meia-largura x 0.75 para cobrir 80% no mesmo holdout (otimista: medido nos dados usados para ajustar).",
+  "Escolha da fonte de previsao: opera_dswx_hls: 169 obs, 12/12 meses cobertos em 3.8 anos (minimo 10 meses e 2 anos) (escolhida).",
+  "Checagem independente com s1_rtc (mesmo Prophet, em %): mesma direcao em 3/4 semanas; correlacao sazonal 0.51 (n=44 meses).",
+  "Treino da previsao (holdout obs): obs: MAPE 9.3%, cobertura IC80 100% (n=7); composto15: MAPE 40.1%, cobertura IC80 57% (n=7) -> obs (menor MAPE com cobertura >= 60%).",
+  "Linhas de qualidade 'low' tem peso menor so na calibracao; o Prophet nao aceita pesos.",
+  "A projecao extrapola o modelo; nao e medicao."
+ ]
+}
