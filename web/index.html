@@ -3,68 +3,208 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pantanal SAR · água e fogo</title>
-<meta name="description" content="Mapa interativo do recuo das cheias e das queimadas no Pantanal com radar NISAR (banda L), FIRMS, MCD64A1 e HLS.">
+<title>Wetland Pulse · Pantanal: água no tempo</title>
+<meta name="description" content="O radar NISAR mede a água aberta do Pantanal mesmo sob nuvem e fumaça. Série temporal com detecção e projeção (Prophet), mapa com imagens reais do NISAR e storyline do desafio Dancing with the SARs.">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div id="map" aria-label="Mapa"></div>
 
-<aside id="panel">
-  <header>
-    <h1>Pantanal: água e fogo</h1>
-    <p class="sub">O radar NISAR (banda L) vê a água sob a vegetação e enxerga através da fumaça e das nuvens.</p>
-  </header>
-
-  <div id="banner" class="banner" hidden>DADOS SINTÉTICOS DE DEMONSTRAÇÃO. Não são resultados reais.</div>
-  <div id="empty" class="muted">Sem dados. Rode <code>python -m pantanal_sar.cli export</code> (ou <code>demo</code>).</div>
-
-  <section id="when" hidden>
-    <h2>Data da passagem</h2>
-    <div class="stepper">
-      <button id="prev" type="button" aria-label="Data anterior">&lsaquo;</button>
-      <strong id="dateLabel">-</strong>
-      <button id="next" type="button" aria-label="Próxima data">&rsaquo;</button>
+<header id="topbar">
+  <div class="brand">
+    <svg class="mark" width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+      <circle cx="15" cy="15" r="14" fill="none" stroke="var(--marca-primaria)" stroke-width="2"/>
+      <circle cx="15" cy="15" r="8" fill="none" stroke="var(--agua-principal)" stroke-width="2"/>
+      <circle cx="15" cy="15" r="2.5" fill="var(--marca-primaria)"/>
+    </svg>
+    <div class="wordmark">
+      <strong>Wetland Pulse</strong>
+      <span>Pantanal · água medida com NISAR</span>
     </div>
-    <input id="date" type="range" min="0" max="0" value="0" aria-label="Data">
-    <div id="ticks" class="ticks"></div>
-    <p id="period" class="muted"></p>
-  </section>
+  </div>
 
-  <section id="cards" class="cards" hidden></section>
+  <nav id="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="serie">Série temporal</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="mapa">Mapa</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="story">Storyline</button>
+  </nav>
 
-  <section id="layersBox" hidden>
-    <h2>Camadas</h2>
-    <div id="layers"></div>
-    <label class="layer">
-      <input type="checkbox" id="firms" checked>
-      <span class="sw dot" style="background:#ffb000"></span>
-      <span>Focos de fogo no período</span>
-      <span class="tag obs">Observado (FIRMS)</span>
-    </label>
-    <label class="opacity">Opacidade <input id="opacity" type="range" min="0.2" max="1" step="0.05" value="0.9"></label>
-  </section>
+  <div class="topbar-right">
+    <button id="infoBtn" class="icon-btn" type="button" aria-haspopup="dialog" aria-controls="infoModal" aria-label="Sobre os dados e método">i</button>
+    <span class="badge">NASA Space Apps 2026 · Dancing with the SARs</span>
+  </div>
+</header>
 
-  <section id="analysis" hidden>
-    <h2>Água e fogo</h2>
-    <p id="analysisText"></p>
-    <p class="muted">Associação observada, não causa.</p>
-  </section>
+<!-- ===================== Série temporal ===================== -->
+<main id="view-serie" class="view active">
+  <div class="page">
+    <section class="head">
+      <div class="head-text">
+        <h1>Área de água aberta — Pantanal norte</h1>
+        <p class="sub">Trilha NISAR 132 (DHDH), 8 passagens em 2026. Modelo Prophet: detecção primeiro (observado vs. esperado), projeção de curto prazo como diferencial.</p>
+      </div>
+      <span id="statusChip" class="chip chip--ok"><span class="dot"></span><span class="label">Dentro do esperado</span></span>
+    </section>
 
-  <details>
-    <summary>Sobre os dados</summary>
-    <ul class="muted">
-      <li><b>NISAR L2 GCOV</b> (NASA/ISRO, ASF DAAC): água e cicatrizes de queimada. Produto <b>provisório</b>.</li>
-      <li><b>FIRMS</b> (NASA, MODIS e VIIRS): focos de fogo ativos.</li>
-      <li><b>MCD64A1 v061</b> e <b>HLS v2.0</b> (NASA LP DAAC): validação.</li>
-      <li>Mapa de fundo: &copy; OpenStreetMap contributors.</li>
-    </ul>
-    <p class="muted">Código Apache-2.0. Detalhes do método e citações no repositório.</p>
-  </details>
-</aside>
+    <section id="metricCards" class="metric-cards" aria-label="Indicadores da série"></section>
+
+    <section class="card chart-card">
+      <div class="chart-head">
+        <h2>Água aberta medida pelo NISAR e esperada pelo modelo (km²)</h2>
+        <div id="legend" class="legend"></div>
+      </div>
+      <div id="chartBox" class="chart-box"></div>
+      <p id="validationCaption" class="muted small"></p>
+    </section>
+
+    <section id="forecastPanel" class="card chart-card" hidden>
+      <div class="chart-head">
+        <h2 id="forecastTitle">Projeção</h2>
+      </div>
+      <div id="forecastBox" class="chart-box"></div>
+      <p id="forecastWarning" class="muted small"></p>
+    </section>
+
+    <section class="card caveat">
+      <h2>Como ler este gráfico</h2>
+      <ul>
+        <li>A faixa sombreada é a faixa esperada do modelo (95%); um ponto fora dela é "fora da faixa esperada", não prova de mudança.</li>
+        <li>A barra fina em cada ponto medido é a incerteza do método (limiar ±1 dB) — não é a faixa de 95%.</li>
+        <li>A projeção é um gráfico separado, em variação percentual — nunca emendada na linha de km² (ver "Limitações").</li>
+      </ul>
+      <p class="muted small">Fontes completas e método: ícone "i" no topo.</p>
+    </section>
+
+    <details class="card">
+      <summary><strong>Limitações</strong></summary>
+      <ul id="limitationsList" class="small" style="margin-top:10px; display:flex; flex-direction:column; gap:6px; color:var(--texto-secundario);"></ul>
+    </details>
+  </div>
+</main>
+
+<!-- ===================== Mapa ===================== -->
+<main id="view-mapa" class="view">
+  <div class="map-body">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <h1 id="mapTitle">Área de estudo</h1>
+        <p id="mapSub" class="sub">Pantanal norte (MT) · Trilha NISAR 132</p>
+        <div class="divider"></div>
+        <h2>Comparar datas</h2>
+        <p class="sub">Escolha a passagem da esquerda (E) e da direita (D) da linha — ou arraste a régua no mapa.</p>
+        <div id="dateList" class="date-list"></div>
+        <div class="divider"></div>
+        <label class="sub" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+          <input type="checkbox" id="toggleHH"> Mostrar radar NISAR (HH) por baixo da água
+        </label>
+      </div>
+      <p class="muted small">Imagens reais do NISAR (água aberta medida); mapa de fundo OpenStreetMap.</p>
+    </aside>
+    <div class="map-canvas">
+      <div id="leafletMap"></div>
+      <div id="mapOverlayUI"></div>
+    </div>
+  </div>
+</main>
+
+<!-- ===================== Storyline ===================== -->
+<main id="view-story" class="view">
+  <div class="page">
+    <h1>Storyline — Dancing with the SARs</h1>
+    <p class="sub">A leitura guiada do desafio: o que o NISAR detectou, por que pode ter acontecido, como o radar enxerga isso e o que vem a seguir.</p>
+
+    <ol class="steps">
+      <li class="step step--active">
+        <div class="step-head"><span class="step-num">1</span><h2>O que aconteceu</h2></div>
+        <div class="card step-card">
+          <p>Entre 17 jul e 21 out de 2026, a água aberta medida pelo NISAR (trilha 132) caiu de 376&nbsp;km² para 254&nbsp;km² — uma tendência de cerca de -30&nbsp;km²/mês. Com a faixa esperada de 95%, nenhuma passagem ficou fora do esperado até agora. Detalhes na aba "Série temporal".</p>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-head"><span class="step-num">2</span><h2>Por que pode ter mudado</h2></div>
+        <div class="card step-card">
+          <div class="pair-cards">
+            <div class="mini-card">
+              <span class="tag" style="color:var(--agua-principal)"><span class="dot" style="background:var(--agua-principal)"></span>Hipótese 1</span>
+              <h3>Estação seca</h3>
+              <p>Jul–out é o período seco do Pantanal — a retração é consistente com o ciclo natural, não necessariamente um evento fora do comum.</p>
+            </div>
+            <div class="mini-card">
+              <span class="tag" style="color:var(--agua-clara-texto)"><span class="dot" style="background:var(--agua-clara)"></span>Hipótese 2</span>
+              <h3>Comparação histórica (fase 2)</h3>
+              <p>Com o histórico do MapBiomas calibrado via OPERA DSWx, dá para checar se este ano está fora do padrão dos últimos anos — ainda não comparável nesta fase.</p>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-head"><span class="step-num">3</span><h2>Como o radar enxerga isso</h2></div>
+        <div class="card step-card">
+          <div class="pair-cards">
+            <div class="mini-card">
+              <span class="tag" style="color:var(--agua-principal)"><span class="dot" style="background:var(--agua-principal)"></span>HH</span>
+              <h3>Água aberta</h3>
+              <p>Superfície lisa devolve pouco sinal ao sensor, por isso aparece escura em HH — é a base do limiar que define a máscara de água.</p>
+            </div>
+            <div class="mini-card">
+              <span class="tag" style="color:var(--fogo-foco)"><span class="dot" style="background:var(--fogo-foco)"></span>HV</span>
+              <h3>Vegetação alagada</h3>
+              <p>Mais sensível à estrutura da vegetação; ajuda a indicar água escondida sob o dossel, onde o HH sozinho subestima a área alagada (uso experimental).</p>
+            </div>
+          </div>
+          <div class="row-between">
+            <span class="muted small">Comparação quantitativa HH × HV</span>
+            <span class="chip chip--pending"><span class="dot"></span><span class="label">Pendente</span></span>
+          </div>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-head"><span class="step-num">4</span><h2>O que vem a seguir</h2></div>
+        <div class="card step-card">
+          <p>A projeção de 4 semanas usa o OPERA DSWx-HLS como referência, sempre em variação percentual (o nível em km² ainda não passou no teste de calibração contra o NISAR). Detalhes e o aviso completo na aba "Série temporal".</p>
+        </div>
+      </li>
+    </ol>
+
+    <p class="muted small">Essa é a leitura resumida do desafio. Números e gráfico estão em "Série temporal", geografia e comparação visual em "Mapa". Fontes, método e licença: ícone "i" no topo.</p>
+  </div>
+</main>
+
+<!-- ===================== Modal: Sobre os dados ===================== -->
+<div id="infoModal" class="modal-backdrop" hidden>
+  <div class="modal card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h2 id="modalTitle">Sobre os dados e método</h2>
+      <button class="icon-btn" id="modalCloseX" type="button" aria-label="Fechar">×</button>
+    </div>
+    <p class="muted small">Toda fonte usada no produto, o que cada uma faz e se já passou pelo teste de calibração contra o NISAR.</p>
+
+    <div class="card nested">
+      <h3>Fontes</h3>
+      <div id="sourcesList"></div>
+    </div>
+
+    <div class="card nested">
+      <h3>Método</h3>
+      <ul>
+        <li>Detecção: só NISAR 2026 (trilha 132, 8 passagens), dentro da amostra (tendência + changepoints, sem sazonalidade anual), faixa esperada de 95%.</li>
+        <li>Projeção: 4 semanas a partir do OPERA DSWx-HLS (mais histórico e cobertura mensal completa), sempre em variação percentual — o nível em km² só seria publicado se a fonte passasse no teste de calibração contra o NISAR.</li>
+        <li>OPERA DSWx-S1, OPERA DSWx-HLS e Sentinel-1 RTC ainda não passaram no teste de calibração (ver lista de fontes acima e o painel "Limitações" na aba Série temporal).</li>
+      </ul>
+    </div>
+
+    <div class="card nested">
+      <h3>Licença e uso de IA</h3>
+      <p class="muted small">Código sob licença Apache-2.0. Esta interface foi desenhada com apoio de IA a partir do design system do time. O mapa usa imagens reais do NISAR (água aberta medida); fundo de mapa OpenStreetMap.</p>
+    </div>
+
+    <button class="btn btn--secondary" id="modalCloseBtn" type="button">Fechar</button>
+  </div>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/app.js"></script>
+<script src="js/series.js"></script>
+<script src="js/mapa.js"></script>
 </body>
 </html>
