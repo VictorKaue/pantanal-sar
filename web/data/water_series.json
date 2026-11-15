@@ -1,0 +1,221 @@
+{
+ "demo": false,
+ "generated": "2026-11-15T00:35:46+00:00",
+ "meta": {
+  "phase": 1,
+  "phase_reason": "MapBiomas indisponivel",
+  "interval": 0.8,
+  "calibration_path": "fase1",
+  "yearly_seasonality": false,
+  "detection": "dentro da amostra (tendencia+changepoints)",
+  "calibration": null,
+  "sensitivity_partial": null,
+  "projection_step": "12D",
+  "horizon": 3,
+  "nisar_column": "water_km2_fixed",
+  "n_nisar": 8,
+  "n_mapbiomas": 0
+ },
+ "metrics": {
+  "holdout": "ultimas 2 datas NISAR",
+  "mae_km2": 113.48241341805527,
+  "mape_pct": 44.41147853449674,
+  "n": 2
+ },
+ "labels_pt": {
+  "observado": "Medido (NISAR)",
+  "esperado": "Esperado (modelo Prophet)",
+  "projecao": "Projecao (nao e medicao)",
+  "intervalo": "Intervalo de incerteza 80%"
+ },
+ "points": [
+  {
+   "ds": "2026-07-17",
+   "kind": "observado",
+   "source": "NISAR",
+   "observed_km2": 376.49,
+   "observed_raw_km2": 376.49,
+   "expected_km2": 306.7828576755,
+   "lower_km2": 250.51390140049577,
+   "upper_km2": 363.0518139505042,
+   "cal_sd_km2": 0.0,
+   "anomaly_km2": 69.70714232450001,
+   "anomaly_pct": 22.721980899673618,
+   "is_anomaly": true
+  },
+  {
+   "ds": "2026-08-10",
+   "kind": "observado",
+   "source": "NISAR",
+   "observed_km2": 258.26,
+   "observed_raw_km2": 258.26,
+   "expected_km2": 282.520892379475,
+   "lower_km2": 226.10561914222654,
+   "upper_km2": 338.9361656167235,
+   "cal_sd_km2": 0.0,
+   "anomaly_km2": -24.260892379475024,
+   "anomaly_pct": -8.587291430075338,
+   "is_anomaly": false
+  },
+  {
+   "ds": "2026-08-22",
+   "kind": "observado",
+   "source": "NISAR",
+   "observed_km2": 210.43,
+   "observed_raw_km2": 210.43,
+   "expected_km2": 270.3899097314625,
+   "lower_km2": 216.2294243031149,
+   "upper_km2": 324.55039515981014,
+   "cal_sd_km2": 0.0,
+   "anomaly_km2": -59.95990973146252,
+   "anomaly_pct": -22.17535032687116,
+   "is_anomaly": true
+  },
+  {
+   "ds": "2026-09-03",
+   "kind": "observado",
+   "source": "NISAR",
+   "observed_km2": 253.02,
+   "observed_raw_km2": 253.02,
+   "expected_km2": 258.258927072064,
+   "lower_km2": 207.3829672145644,
+   "upper_km2": 309.13488692956366,
+   "cal_sd_km2": 0.0,
+   "anomaly_km2": -5.238927072064001,
+   "anomaly_pct": -2.028556043138111,
+   "is_anomaly": false
+  },
+  {
+   "ds": "2026-09-15",
+   "kind": "observado",
+   "source": "NISAR",
+   "observed_km2": 240.48,
+   "observed_raw_km2": 240.48,
+   "expected_km2": 246.1279444126655,
+   "lower_km2": 189.75723337633826,
+   "upper_km2": 302.49865544899274,
+   "cal_sd_km2": 0.0,
+   "anomaly_km2": -5.64794441266551,
+   "anomaly_pct": -2.294718881329459,
+   "is_anomaly": false
+  },
+  {
+   "ds": "2026-09-27",
+   "kind": "observado",
+   "source": "NISAR",
+   "observed_km2": 179.55,
+   "observed_raw_km2": 179.55,
+   "expected_km2": 233.9969617752817,
+   "lower_km2": 179.38880039740422,
+   "upper_km2": 288.6051231531592,
+   "cal_sd_km2": 0.0,
+   "anomaly_km2": -54.44696177528169,
+   "anomaly_pct": -23.26823449424513,
+   "is_anomaly": false
+  },
+  {
+   "ds": "2026-10-09",
+   "kind": "observado",
+   "source": "NISAR",
+   "observed_km2": 257.14,
+   "observed_raw_km2": 257.14,
+   "expected_km2": 221.86597913789794,
+   "lower_km2": 166.8726591585052,
+   "upper_km2": 276.8592991172907,
+   "cal_sd_km2": 0.0,
+   "anomaly_km2": 35.27402086210205,
+   "anomaly_pct": 15.898796651548789,
+   "is_anomaly": false
+  },
+  {
+   "ds": "2026-10-21",
+   "kind": "observado",
+   "source": "NISAR",
+   "observed_km2": 254.23,
+   "observed_raw_km2": 254.23,
+   "expected_km2": 209.73499650544684,
+   "lower_km2": 151.50990980675465,
+   "upper_km2": 267.96008320413904,
+   "cal_sd_km2": 0.0,
+   "anomaly_km2": 44.495003494553146,
+   "anomaly_pct": 21.21486839865449,
+   "is_anomaly": false
+  },
+  {
+   "ds": "2026-11-02",
+   "kind": "projecao",
+   "source": "Prophet",
+   "observed_km2": null,
+   "observed_raw_km2": null,
+   "expected_km2": 197.60401387299578,
+   "lower_km2": 143.89750381545215,
+   "upper_km2": 257.9562898983693,
+   "cal_sd_km2": null,
+   "anomaly_km2": null,
+   "anomaly_pct": null,
+   "is_anomaly": null
+  },
+  {
+   "ds": "2026-11-14",
+   "kind": "projecao",
+   "source": "Prophet",
+   "observed_km2": null,
+   "observed_raw_km2": null,
+   "expected_km2": 185.47303124054469,
+   "lower_km2": 126.69098337385928,
+   "upper_km2": 240.18048458248447,
+   "cal_sd_km2": null,
+   "anomaly_km2": null,
+   "anomaly_pct": null,
+   "is_anomaly": null
+  },
+  {
+   "ds": "2026-11-26",
+   "kind": "projecao",
+   "source": "Prophet",
+   "observed_km2": null,
+   "observed_raw_km2": null,
+   "expected_km2": 173.3420486080936,
+   "lower_km2": 118.7896127863467,
+   "upper_km2": 226.87927602264963,
+   "cal_sd_km2": null,
+   "anomaly_km2": null,
+   "anomaly_pct": null,
+   "is_anomaly": null
+  }
+ ],
+ "components": [
+  {
+   "ds": "2026-07-17",
+   "trend": 306.7828576755
+  },
+  {
+   "ds": "2026-08-10",
+   "trend": 282.520892379475
+  },
+  {
+   "ds": "2026-08-22",
+   "trend": 270.3899097314625
+  },
+  {
+   "ds": "2026-09-03",
+   "trend": 258.258927072064
+  },
+  {
+   "ds": "2026-09-15",
+   "trend": 246.1279444126655
+  },
+  {
+   "ds": "2026-09-27",
+   "trend": 233.9969617752817
+  },
+  {
+   "ds": "2026-10-09",
+   "trend": 221.86597913789794
+  },
+  {
+   "ds": "2026-10-21",
+   "trend": 209.73499650544684
+  }
+ ]
+}

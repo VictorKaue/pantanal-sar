@@ -1,0 +1,19 @@
+key,value
+holdout,ultimas 2 datas NISAR
+mae_km2,113.48241341805527
+mape_pct,44.41147853449674
+n,2
+phase,1
+phase_reason,MapBiomas indisponivel
+interval,0.8
+calibration_path,fase1
+yearly_seasonality,False
+detection,dentro da amostra (tendencia+changepoints)
+calibration,
+sensitivity_partial,
+projection_step,12D
+horizon,3
+nisar_column,water_km2_fixed
+n_nisar,8
+n_mapbiomas,0
+demo,False

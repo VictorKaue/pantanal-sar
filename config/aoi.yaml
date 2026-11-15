@@ -55,3 +55,12 @@ analysis:
   # Spacing between sampled pixels in the statistical test (reduces spatial
   # autocorrelation). Converted to pixels from the grid resolution.
   sample_spacing_m: 1000
+
+# Verification with NASA OPERA products derived from Copernicus Sentinel-1 and HLS (alterado)
+opera:
+  water_products: [OPERA_L3_DSWX-HLS_V1, OPERA_L3_DSWX-S1_V1]
+  backscatter_product: OPERA_L2_RTC-S1_V1
+  # NISAR date -> closest OPERA dates found in CMR (2026-11-14)
+  pairs:
+    "2026-09-27": {dswx_hls: "2026-09-27", dswx_s1: "2026-09-25"}
+    "2026-10-21": {dswx_hls: "2026-10-20", dswx_s1: "2026-10-19"}
