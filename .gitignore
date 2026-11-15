@@ -22,6 +22,7 @@ data/processed/**
 web/data/**
 !web/data/.gitkeep
 !web/data/manifest.json
+!web/data/water_series.json
 
 # Python
 __pycache__/
@@ -34,3 +35,6 @@ __pycache__/
 .DS_Store
 .vscode/
 .idea/
+
+# Maestri agent workspace
+.maestri/
