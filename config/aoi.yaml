@@ -64,3 +64,70 @@ opera:
   pairs:
     "2026-09-27": {dswx_hls: "2026-09-27", dswx_s1: "2026-09-25"}
     "2026-10-21": {dswx_hls: "2026-10-20", dswx_s1: "2026-10-19"}
+
+# Water-area time series (docs/DATA_CONTRACT.md v2). Each id reads data/series/<id>.csv. (alterado)
+# Every source is calibrated to the reference scale (linear fit, pairs within
+# pair_window_days, monthly fallback, chained through another calibrated source if needed).
+series:
+  reference: nisar
+  pair_window_days: 4
+  interval: 0.8              # forecast interval (adjusted by the coverage measured in the holdout)
+  # Detection on NISAR alone. 95% band (80% flags ~1.6 of 8 points by chance). Method sensitivity:
+  # detection re-run on the -1/+1 dB threshold columns of nisar.csv (Lagoa). (alterado)
+  detection:
+    interval: 0.95
+    sensitivity_columns: {lo: water_km2_lo, hi: water_km2_hi}
+  # Detection = NISAR alone (trend + changepoints). Forecast = Prophet with annual seasonality on
+  # opera_dswx_hls (same open-water definition, seasonal amplitude closest to the flood, most data),
+  # in its own scale; main output is % change vs the median of its last 15 days; km2 in NISAR scale
+  # only if it passes the calibration gate (level_calibrated). s1_rtc is an independent CHECK only
+  # (same Prophet in %), never the forecast source. (alterado)
+  forecast:
+    sources: [opera_dswx_hls]
+    check_sources: [s1_rtc]
+    min_years: 2
+    min_months_covered: 10   # complete = usable rows in >= 10 of the 12 calendar months (alterado)
+    step: 7D
+    horizon: 4
+    holdout_days: 90
+    composite_days: 15       # train on 15-day composites if they beat individual rows in the holdout (alterado)
+    min_coverage: 0.6        # variant choice: lowest MAPE among those whose IC80 covers >= 60% (alterado)
+  # Quality gate for each calibration (alterado). R2 is not used: NISAR only covers the dry season.
+  # Skill guards against passing sources that do no better than a constant.
+  # Proportional y = k*x (k = median of ratios, bootstrap CI) when the NISAR range in the pairs is
+  # narrow (CV < narrow_cv) or when the linear fit fails the gate. Sources that fail stay out.
+  calibration_gate:
+    max_loo_mape_pct: 25
+    min_n: 8                 # (alterado)
+    min_skill: 0.10          # 1 - LOO_source / LOO_constant (mean of the other pairs) (alterado)
+    skill_ci_lo_min: 0.0     # lower bound of the bootstrap 95% CI of skill must be > this (alterado)
+    narrow_cv: 0.3
+    bootstrap: 1000
+  sources:
+    - id: nisar
+      label_pt: "Medido (NISAR)"
+      citation: "NASA/ISRO NISAR L2 GCOV (provisório), distribuído pelo ASF DAAC"
+      notes_pt:   # Prumo, limitacao (3), 15/11 (alterado)
+        - "Quedas do NISAR em 22/08 e 27/09 nao confirmadas pelo Sentinel-1 (S1 ve ~115 km2 a mais nessas datas; S1 T039 2026 estavel 217-223 km2)."
+    - id: opera_dswx_hls
+      label_pt: "Observado (OPERA DSWx-HLS)"
+      citation: "OPERA Project, NASA JPL. DSWx-HLS v1 (Landsat/Sentinel-2 via HLS)"
+      # Water fraction x full bbox area (removes the bias of partial cloud-free coverage, C4), and drop
+      # rows below 0.3 x the 31-day rolling median (smoke read as land in 2024, C3). (alterado)
+      normalize_coverage: true
+      outlier: {window_days: 31, min_ratio: 0.3}
+    - id: opera_dswx_s1
+      label_pt: "Observado (OPERA DSWx-S1)"
+      citation: "OPERA Project, NASA JPL. DSWx-S1 v1 (Copernicus Sentinel-1)"
+    - id: s1_rtc
+      label_pt: "Observado (Sentinel-1)"
+      citation: "OPERA Project, NASA JPL. RTC-S1 v1 (Copernicus Sentinel-1), distribuído pelo ASF DAAC"
+      # Only track T039 (footprint ~85% of the bbox, constant geometry); T141 and partial
+      # footprints stay out (Lagoa, 15/11). (alterado)
+      # Burn scars read as water in VH (F1 vs DSWx-S1 0.33-0.47) in T039, 16/08-15/10/2024 (Prumo S1). (alterado)
+      filter: {track: [T039], min_valid_frac: 0.8, exclude_ranges: [["2024-08-16", "2024-10-15"]]}
+      notes_pt:
+        - "a banda C (Sentinel-1) nao ve a agua rasa sob vegetacao da cheia: em T039 a amplitude sazonal e pequena (cheia 2023 de 280-300 km2 contra seca de 213 km2), enquanto o DSWx-HLS mostra cheia de 1362 km2 em 2023. Serve para a tendencia da agua aberta, nao para o tamanho da cheia."
+    - id: mapbiomas
+      label_pt: "Observado (MapBiomas Água)"
+      citation: "Projeto MapBiomas, Coleção Água, CC-BY 4.0"

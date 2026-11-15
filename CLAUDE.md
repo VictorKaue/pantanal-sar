@@ -13,7 +13,7 @@ Leia este arquivo inteiro antes de qualquer ação. Ele resume as decisões já 
 - **Só alagamentos e queimadas no Pantanal**, numa sub-região, com **interface web intuitiva**.
 - Fora do escopo: estimativa de carbono/CO2, metano, generalização para outras regiões (só como extensão futura), interferometria, contas de usuário.
 - Abordagem **estatística, não IA**: série NISAR curta, sem dados rotulados; métodos explicáveis.
-- Mensagem central: o radar em banda L vê água sob a vegetação e enxerga através da fumaça e das nuvens na temporada de fogo.
+- Mensagem central (alterado 15/11): o radar NISAR mede a água aberta mesmo sob nuvem e fumaça; mostrou a recessão da água na seca de 2026. **Não dizer que o método vê água sob a vegetação** (só mede água aberta; auditoria R5).
 - Relação água e fogo: reportar **associação observada, não causa**.
 
 ## Fontes de dados (só NASA) e justificativa
@@ -87,3 +87,4 @@ Decisão do Victor, substitui partes do "Escopo decidido" e das "Fontes de dados
 - Feedback do especialista: água aberta em HH aprox. -25 a -9 dB (confirmar no histograma); limiar pela moda do vale de menor valor; ajuste linear basta.
 - Equipe Maestri: Lagoa (água NISAR), Baia (MapBiomas), Mare (Prophet). Contrato em `data/series/` (ver papéis).
 - (alterado) Ponte de calibração aprovada: MapBiomas (até 2025) e NISAR (jun-out/2026) não se sobrepõem. Usar OPERA DSWx-HLS (2025 e 2026, mesmo bbox) como ponte: ajuste linear MapBiomas<->DSWx em 2025 e DSWx<->NISAR em 2026, compostos. Série em `data/series/opera_dswx_water.csv` (Baia); calibração em `timeseries.py` (Mare).
+- (alterado, 15/11) Detecção com NISAR é o essencial; previsão é o diferencial. Histórico estendido com OPERA DSWx-HLS 2023-2024 e Sentinel-1 (radar banda C, vê na cheia sob nuvem; DSWx-S1 ou RTC-S1, conforme cobertura no CMR). Frontend fica com outro integrante: código modular, uma fonte por módulo, contrato em `docs/DATA_CONTRACT.md` (v2). Branch: `feat/opera-history-web`.
