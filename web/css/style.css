@@ -168,11 +168,14 @@ button { font-family: inherit; }
 
 .map-canvas { position: relative; flex: 1; overflow: hidden; background: var(--fundo-mapa-terra); }
 .map-canvas svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+#leafletMap { position: absolute; inset: 0; background: var(--fundo-mapa-terra); }
+#mapOverlayUI { position: absolute; inset: 0; pointer-events: none; z-index: 1000; }
 .map-pill {
   position: absolute; background: var(--fundo-superficie); border-radius: 999px; padding: 6px 14px;
   font-size: 12px; font-weight: 600; box-shadow: var(--shadow-card); white-space: nowrap; pointer-events: none;
 }
-.slider-handle { position: absolute; top: 50%; cursor: ew-resize; touch-action: none; }
+.slider-line { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--texto-principal); pointer-events: none; }
+.slider-handle { position: absolute; top: 50%; cursor: ew-resize; touch-action: none; pointer-events: auto; }
 .slider-handle .hit { width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; background: var(--fundo-superficie);
   border: 2px solid var(--texto-principal); box-shadow: var(--shadow-card); display: flex; align-items: center; justify-content: center; }
 
@@ -194,6 +197,11 @@ button { font-family: inherit; }
 .tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
 .tag .dot { width: 8px; height: 8px; border-radius: 50%; }
 .row-between { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+
+/* ---------- Evidence row (fontes) ---------- */
+.evidence-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; }
+.evidence-row strong { font-size: 14px; }
+.evidence-row p { margin-top: 2px; }
 
 /* ---------- Modal ---------- */
 .modal-backdrop {

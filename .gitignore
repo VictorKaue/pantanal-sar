@@ -22,7 +22,10 @@ data/processed/**
 web/data/**
 !web/data/.gitkeep
 !web/data/manifest.json
-!web/data/water_series.json
+!web/data/layers/
+!web/data/layers/**
+!web/data/series/
+!web/data/series/**
 
 # Python
 __pycache__/
@@ -38,3 +41,6 @@ __pycache__/
 
 # Maestri agent workspace
 .maestri/
+
+# Synthetic outputs of `cli timeseries --demo` (never published)
+data/demo/

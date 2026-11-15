@@ -1,5 +1,7 @@
-// Wetland Pulse: aba "Série temporal". Lê data/water_series.json (contrato em
-// src/pantanal_sar/timeseries.py) e desenha os cards, o gráfico e o rótulo de validação.
+// Wetland Pulse: aba "Série temporal" — contrato de dados v2
+// (web/data/manifest.json + series/model.json + series/metrics.json).
+// Ver docs/DATA_CONTRACT.md. Detecção (kind:"fit") e projeção (kind:"forecast")
+// nunca são misturadas no mesmo eixo/unidade: detecção em km², projeção em % (docs/DATA_REVIEW.md).
 "use strict";
 
 (function () {
@@ -8,50 +10,80 @@
   const fmtDate = ds => { const [y, m, d] = ds.split("-").map(Number); return `${d} ${MESES[m - 1]} ${y}`; };
   const fmtShort = ds => { const [y, m, d] = ds.split("-").map(Number); return `${d} ${MESES[m - 1]}`; };
   const fmtNum = (n, max = 0) => (n == null ? "—" : Number(n).toLocaleString("pt-BR", { maximumFractionDigits: max }));
+  const fmtSigned = (n, max = 0) => (n == null ? "—" : `${n >= 0 ? "+" : ""}${fmtNum(n, max)}`);
 
-  fetch("data/water_series.json")
-    .then(r => { if (!r.ok) throw new Error("sem arquivo"); return r.json(); })
-    .then(renderSeries)
-    .catch(err => console.error("Falha ao carregar water_series.json", err));
+  Promise.all([
+    fetch("data/manifest.json").then(r => { if (!r.ok) throw new Error("manifest"); return r.json(); }),
+  ]).then(([manifest]) =>
+    Promise.all([
+      Promise.resolve(manifest),
+      fetch("data/series/" + manifest.series.model).then(r => r.json()),
+      fetch("data/series/" + manifest.series.metrics).then(r => r.json()),
+    ])
+  )
+    .then(([manifest, model, metrics]) => renderSeries(manifest, model, metrics))
+    .catch(err => {
+      console.error("Falha ao carregar a série temporal", err);
+      const box = $("chartBox");
+      if (box) box.innerHTML = '<p class="muted small">Sem dados. Rode <code>python -m pantanal_sar.cli timeseries</code>.</p>';
+    });
 
-  function renderSeries(data) {
-    const points = [...(data.points || [])].sort((a, b) => a.ds.localeCompare(b.ds));
-    if (!points.length) return;
-    const observed = points.filter(p => p.kind === "observado");
-    const future = points.filter(p => p.kind !== "observado");
-    const last = observed[observed.length - 1];
-    const first = observed[0];
-    const labels = data.labels_pt || {};
-    const metrics = data.metrics || {};
+  function renderSeries(manifest, model, metrics) {
+    const fit = model.filter(r => r.kind === "fit").sort((a, b) => a.date.localeCompare(b.date));
+    const forecast = model.filter(r => r.kind === "forecast").sort((a, b) => a.date.localeCompare(b.date));
+    if (!fit.length) return;
+    const last = fit[fit.length - 1];
 
     renderStatus(last);
-    renderCards(first, last, future, metrics);
-    renderLegend(labels);
-    renderChart(points, observed, future);
-    $("validationCaption").textContent =
-      `Validação fora da amostra: MAE ${fmtNum(metrics.mae_km2)} km² · MAPE ${fmtNum(metrics.mape_pct, 1)}% (${metrics.holdout || "-"}).`;
+    renderCards(last, metrics);
+    renderLegend();
+    renderChart(fit);
+    renderForecastPanel(forecast, manifest.forecast);
+    renderValidation(metrics);
+    renderLimitations(metrics);
+    renderSources(manifest.sources || []);
+  }
+
+  function renderSources(sources) {
+    const box = $("sourcesList");
+    if (!box) return;
+    box.innerHTML = sources.map((s, i) => {
+      const chip = s.calibrated
+        ? '<span class="chip chip--primary"><span class="dot"></span><span class="label">Calibrado</span></span>'
+        : '<span class="chip chip--pending"><span class="dot"></span><span class="label">Não calibrado</span></span>';
+      const last = i === sources.length - 1 ? "" : 'style="border-bottom:1px solid var(--borda-padrao);"';
+      return `<div class="evidence-row" ${last}>
+        <div><strong>${s.label_pt}</strong><p class="muted small">${s.citation} · ${s.n_obs} observações (${s.first} a ${s.last}).</p></div>
+        ${chip}
+      </div>`;
+    }).join("");
   }
 
   function renderStatus(last) {
-    const anomalous = !!last.is_anomaly;
     const el = $("statusChip");
-    el.className = "chip " + (anomalous ? "chip--bad" : "chip--ok");
-    el.querySelector(".label").textContent = anomalous ? "Fora do esperado" : "Dentro do esperado";
+    const out = !!last.anomaly;
+    el.className = "chip " + (out ? "chip--bad" : "chip--ok");
+    el.querySelector(".label").textContent = last.label_pt || (out ? "Fora da faixa esperada (95%)" : "Observado");
   }
 
-  function renderCards(first, last, future, metrics) {
-    const days = (new Date(last.ds) - new Date(first.ds)) / 86400000;
-    const perMonth = days > 0 ? ((last.expected_km2 - first.expected_km2) / days) * 30 : 0;
+  function renderCards(last, metrics) {
+    const perMonth = metrics.trend_km2_per_day != null ? metrics.trend_km2_per_day * 30 : null;
+    const range = metrics.trend_range_km2_per_day;
     const cards = [
       {
         label: "Água aberta (última passagem)",
         value: `${fmtNum(last.observed_km2)} km²`,
-        detail: `Medido em ${fmtDate(last.ds)} · esperado ${fmtNum(last.expected_km2)} km²`,
+        detail: `Medido em ${fmtDate(last.date)} · limiar ±1 dB: ${fmtNum(last.method_lo_km2)}–${fmtNum(last.method_hi_km2)} km²`,
       },
       {
-        label: "Tendência do modelo",
-        value: `${perMonth >= 0 ? "+" : ""}${fmtNum(perMonth)} km²/mês`,
-        detail: "Prophet: tendência + changepoints, sem sazonalidade anual (fase 1)",
+        label: "Esperado (modelo Prophet)",
+        value: `${fmtNum(last.expected_km2)} km²`,
+        detail: `Faixa esperada (95%): ${fmtNum(last.lo95_km2)}–${fmtNum(last.hi95_km2)} km²`,
+      },
+      {
+        label: "Tendência",
+        value: perMonth != null ? `${fmtSigned(perMonth)} km²/mês` : "—",
+        detail: range ? `Sensível ao limiar: ${fmtSigned(range.min * 30)} a ${fmtSigned(range.max * 30)} km²/mês` : "Tendência + changepoints (Prophet)",
       },
     ];
     $("metricCards").innerHTML = cards.map(c => (
@@ -59,55 +91,49 @@
     )).join("");
   }
 
-  function lineSwatch(dashed) {
+  function lineSwatch() {
     return `<svg width="18" height="10" viewBox="0 0 18 10" aria-hidden="true">
-      <line x1="1" y1="5" x2="17" y2="5" stroke="var(--agua-principal)" stroke-width="2" stroke-linecap="round"${dashed ? ' stroke-dasharray="4 3"' : ""} />
+      <line x1="1" y1="5" x2="17" y2="5" stroke="var(--agua-principal)" stroke-width="2" stroke-linecap="round" />
     </svg>`;
   }
 
-  function renderLegend(labels) {
+  function renderLegend() {
     const items = [
-      { kind: "dot", text: labels.observado || "Medido (NISAR)" },
-      { kind: "line", text: labels.esperado || "Esperado (modelo Prophet)" },
-      { kind: "dashed", text: labels.projecao || "Projeção (não é medição)" },
-      { kind: "band", text: labels.intervalo || "Intervalo de incerteza" },
+      { kind: "dot", text: "Medido (NISAR)" },
+      { kind: "line", text: "Esperado (modelo Prophet)" },
+      { kind: "band", text: "Faixa esperada (95%)" },
+      { kind: "whisker", text: "Incerteza do limiar (±1 dB)" },
     ];
     $("legend").innerHTML = items.map(it => {
       const sw = it.kind === "dot" ? '<span class="sw-dot"></span>'
         : it.kind === "band" ? '<span class="sw-band"></span>'
-        : lineSwatch(it.kind === "dashed");
+        : it.kind === "whisker" ? '<span class="sw-band" style="background:var(--texto-secundario);width:3px;"></span>'
+        : lineSwatch();
       return `<span class="legend-item">${sw}${it.text}</span>`;
     }).join("");
   }
 
-  function renderChart(points, observed, future) {
+  function renderChart(fit) {
     const W = 1000, H = 300, L = 48, R = 16, T = 12, B = 28;
     const x0 = L, x1 = W - R, y0 = T, y1 = H - B;
 
-    const t0 = new Date(points[0].ds).getTime();
-    const t1 = new Date(points[points.length - 1].ds).getTime();
+    const t0 = new Date(fit[0].date).getTime();
+    const t1 = new Date(fit[fit.length - 1].date).getTime();
     const span = Math.max(1, t1 - t0);
     const x = ds => x0 + ((new Date(ds).getTime() - t0) / span) * (x1 - x0);
 
-    const vals = points.flatMap(p => [p.lower_km2, p.upper_km2].filter(v => v != null));
-    observed.forEach(p => { if (p.observed_km2 != null) vals.push(p.observed_km2); });
+    const vals = fit.flatMap(p => [p.lo95_km2, p.hi95_km2, p.method_lo_km2, p.method_hi_km2, p.observed_km2].filter(v => v != null));
     const vMin = Math.max(0, Math.min(...vals) * 0.92);
     const vMax = Math.max(...vals) * 1.08;
     const vSpan = Math.max(1, vMax - vMin);
     const y = v => y1 - ((v - vMin) / vSpan) * (y1 - y0);
 
-    const bridge = observed[observed.length - 1];
-    const bandPath = pts => {
-      const up = pts.map(p => `${x(p.ds).toFixed(2)} ${y(p.upper_km2).toFixed(2)}`);
-      const down = [...pts].reverse().map(p => `${x(p.ds).toFixed(2)} ${y(p.lower_km2).toFixed(2)}`);
+    const bandPath = () => {
+      const up = fit.map(p => `${x(p.date).toFixed(2)} ${y(p.hi95_km2).toFixed(2)}`);
+      const down = [...fit].reverse().map(p => `${x(p.date).toFixed(2)} ${y(p.lo95_km2).toFixed(2)}`);
       return `M ${up.join(" L ")} L ${down.join(" L ")} Z`;
     };
-    const linePath = pts => `M ${pts.map(p => `${x(p.ds).toFixed(2)} ${y(p.expected_km2).toFixed(2)}`).join(" L ")}`;
-
-    const bandObserved = observed.length > 1 ? bandPath(observed) : "";
-    const bandFuture = future.length ? bandPath([bridge, ...future]) : "";
-    const lineObserved = linePath(observed);
-    const lineFuture = future.length ? linePath([bridge, ...future]) : "";
+    const linePath = `M ${fit.map(p => `${x(p.date).toFixed(2)} ${y(p.expected_km2).toFixed(2)}`).join(" L ")}`;
 
     const gridN = 4;
     const gridLines = Array.from({ length: gridN + 1 }, (_, i) => {
@@ -117,36 +143,96 @@
         <text x="${x0 - 8}" y="${(yy + 4).toFixed(2)}" font-size="10" fill="var(--texto-secundario)" text-anchor="end">${fmtNum(v)}</text>`;
     }).join("");
 
-    const ticks = points.map(p => (
-      `<text x="${x(p.ds).toFixed(2)}" y="${y1 + 18}" font-size="10" fill="var(--texto-secundario)" text-anchor="middle">${fmtShort(p.ds)}</text>`
+    const ticks = fit.map(p => (
+      `<text x="${x(p.date).toFixed(2)}" y="${y1 + 18}" font-size="10" fill="var(--texto-secundario)" text-anchor="middle">${fmtShort(p.date)}</text>`
     )).join("");
 
-    const dots = observed.map(p => {
-      const cx = x(p.ds).toFixed(2), cy = y(p.observed_km2).toFixed(2);
-      const fill = p.is_anomaly ? "var(--status-critico)" : "var(--agua-principal)";
+    const whiskers = fit.map(p => {
+      if (p.method_lo_km2 == null || p.method_hi_km2 == null) return "";
+      const cx = x(p.date).toFixed(2);
+      const yLo = y(p.method_lo_km2).toFixed(2), yHi = y(p.method_hi_km2).toFixed(2);
+      return `<line x1="${cx}" y1="${yLo}" x2="${cx}" y2="${yHi}" stroke="var(--texto-secundario)" stroke-width="2" stroke-linecap="round" opacity="0.55" />`;
+    }).join("");
+
+    const dots = fit.map(p => {
+      const cx = x(p.date).toFixed(2), cy = y(p.observed_km2).toFixed(2);
+      const fill = p.anomaly ? "var(--status-critico)" : "var(--agua-principal)";
       return `<circle cx="${cx}" cy="${cy}" r="4.5" fill="${fill}" stroke="var(--fundo-superficie)" stroke-width="1.5">
-        <title>${fmtDate(p.ds)}: medido ${fmtNum(p.observed_km2)} km², esperado ${fmtNum(p.expected_km2)} km²${p.is_anomaly ? " (fora do intervalo)" : ""}</title>
+        <title>${fmtDate(p.date)}: medido ${fmtNum(p.observed_km2)} km² (limiar ±1 dB: ${fmtNum(p.method_lo_km2)}–${fmtNum(p.method_hi_km2)}), esperado ${fmtNum(p.expected_km2)} km²${p.anomaly ? " — fora da faixa esperada (95%)" : ""}</title>
       </circle>`;
     }).join("");
 
-    const todayX = x(bridge.ds).toFixed(2);
-    const nextProj = future[0];
-    const annotation = nextProj
-      ? `<text x="${(x(nextProj.ds) + 10).toFixed(2)}" y="${(y(nextProj.expected_km2) - 10).toFixed(2)}" font-size="11" font-weight="600" fill="var(--texto-principal)">${fmtNum(nextProj.expected_km2)} km² · próxima passagem (projeção)</text>`
-      : "";
-
     $("chartBox").innerHTML = `
-      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Água aberta ao longo do tempo: medido, esperado e projeção">
+      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Água aberta medida pelo NISAR, com o esperado pelo modelo Prophet">
         ${gridLines}
-        ${bandObserved ? `<path d="${bandObserved}" fill="var(--agua-clara)" opacity="0.75" />` : ""}
-        ${bandFuture ? `<path d="${bandFuture}" fill="var(--confianca-baixa)" opacity="0.4" />` : ""}
-        <line x1="${todayX}" y1="${y0}" x2="${todayX}" y2="${y1}" stroke="var(--texto-secundario)" stroke-width="1" stroke-dasharray="2 3" />
-        <path d="${lineObserved}" fill="none" stroke="var(--agua-principal)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-        ${lineFuture ? `<path d="${lineFuture}" fill="none" stroke="var(--agua-principal)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5" />` : ""}
-        ${annotation}
+        <path d="${bandPath()}" fill="var(--agua-clara)" opacity="0.75" />
+        <path d="${linePath}" fill="none" stroke="var(--agua-principal)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        ${whiskers}
         ${dots}
         <line x1="${x0}" y1="${y1}" x2="${x1}" y2="${y1}" stroke="var(--borda-padrao)" stroke-width="1" />
         ${ticks}
       </svg>`;
+  }
+
+  function renderForecastPanel(forecast, forecastMeta) {
+    const section = $("forecastPanel");
+    if (!section) return;
+    if (!forecast.length) { section.hidden = true; return; }
+    section.hidden = false;
+
+    const W = 1000, H = 180, L = 48, R = 16, T = 16, B = 28;
+    const x0 = L, x1 = W - R, y0 = T, y1 = H - B;
+    const dates = forecast.map(p => p.date);
+    const t0 = new Date(dates[0]).getTime(), t1 = new Date(dates[dates.length - 1]).getTime();
+    const span = Math.max(1, t1 - t0);
+    const x = ds => dates.length > 1 ? x0 + ((new Date(ds).getTime() - t0) / span) * (x1 - x0) : (x0 + x1) / 2;
+
+    const vals = forecast.flatMap(p => [p.lo80_pct, p.hi80_pct, p.forecast_pct]).filter(v => v != null);
+    vals.push(0);
+    const vMin = Math.min(...vals) * 1.15, vMax = Math.max(...vals) * 1.15;
+    const vSpan = Math.max(1, vMax - vMin);
+    const y = v => y1 - ((v - vMin) / vSpan) * (y1 - y0);
+
+    const bandPath = `M ${forecast.map(p => `${x(p.date).toFixed(2)} ${y(p.hi80_pct).toFixed(2)}`).join(" L ")} L ${[...forecast].reverse().map(p => `${x(p.date).toFixed(2)} ${y(p.lo80_pct).toFixed(2)}`).join(" L ")} Z`;
+    const linePath = `M ${forecast.map(p => `${x(p.date).toFixed(2)} ${y(p.forecast_pct).toFixed(2)}`).join(" L ")}`;
+    const zeroY = y(0).toFixed(2);
+
+    const dots = forecast.map(p => {
+      const cx = x(p.date).toFixed(2), cy = y(p.forecast_pct).toFixed(2);
+      const flag = p.check_same_direction === true ? "✓ Sentinel-1: mesma direção" : p.check_same_direction === false ? "Sentinel-1: direção diferente" : "";
+      return `<circle cx="${cx}" cy="${cy}" r="4" fill="var(--agua-principal)" stroke="var(--fundo-superficie)" stroke-width="1.5">
+        <title>${fmtDate(p.date)}: ${fmtSigned(p.forecast_pct, 1)}% (faixa 80%: ${fmtSigned(p.lo80_pct, 1)}% a ${fmtSigned(p.hi80_pct, 1)}%)${flag ? " · " + flag : ""}</title>
+      </circle>`;
+    }).join("");
+    const ticks = forecast.map(p => `<text x="${x(p.date).toFixed(2)}" y="${y1 + 18}" font-size="10" fill="var(--texto-secundario)" text-anchor="middle">${fmtShort(p.date)}</text>`).join("");
+
+    const sourceLabel = forecastMeta && forecastMeta.source === "opera_dswx_hls" ? "OPERA DSWx-HLS" : (forecastMeta ? forecastMeta.source : "—");
+    $("forecastTitle").textContent = `Projeção (${sourceLabel}, variação relativa)`;
+    $("forecastWarning").textContent = forecastMeta && forecastMeta.level_calibrated === false
+      ? "Nível em km² não calibrado para esta fonte; os valores abaixo são variação percentual relativa à última observação, não uma nova medição do radar."
+      : "";
+    $("forecastBox").innerHTML = `
+      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Projeção de curto prazo em variação percentual">
+        <line x1="${x0}" y1="${zeroY}" x2="${x1}" y2="${zeroY}" stroke="var(--borda-padrao)" stroke-width="1" stroke-dasharray="3 3" />
+        <text x="${x0 - 8}" y="${(Number(zeroY) + 4)}" font-size="10" fill="var(--texto-secundario)" text-anchor="end">0%</text>
+        <path d="${bandPath}" fill="var(--confianca-baixa)" opacity="0.35" />
+        <path d="${linePath}" fill="none" stroke="var(--agua-principal)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5" />
+        ${dots}
+        <line x1="${x0}" y1="${y1}" x2="${x1}" y2="${y1}" stroke="var(--borda-padrao)" stroke-width="1" />
+        ${ticks}
+      </svg>`;
+  }
+
+  function renderValidation(metrics) {
+    const h = metrics.holdout || {};
+    $("validationCaption").textContent =
+      `Detecção: faixa esperada de ${Math.round((metrics.detection_interval || 0.95) * 100)}%. Validação fora da amostra: MAE ${fmtNum(h.mae_km2)} km² · MAPE ${fmtNum(h.mape_pct, 1)}% (${h.desc || "-"}).`;
+  }
+
+  function renderLimitations(metrics) {
+    const box = $("limitationsList");
+    if (!box) return;
+    const items = metrics.limitations_pt || [];
+    box.innerHTML = items.map(t => `<li>${t}</li>`).join("");
   }
 })();

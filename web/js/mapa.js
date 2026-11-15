@@ -1,136 +1,152 @@
-// Wetland Pulse: aba "Mapa". Mapa esquemático (não é imagem de satélite) com
-// uma régua de comparação de verdade, arrastável, entre duas passagens reais do NISAR.
+// Wetland Pulse: aba "Mapa" — contrato v2. Mapa real (Leaflet + OpenStreetMap)
+// com as camadas medidas do NISAR (água aberta / radar HH) por passagem, e uma
+// régua de comparação de verdade entre a data da esquerda e da direita.
 "use strict";
 
 (function () {
   const $ = id => document.getElementById(id);
-  const W = 1140, H = 836;
   const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
   const fmtDate = ds => { const [y, m, d] = ds.split("-").map(Number); return `${d} ${MESES[m - 1]} ${y}`; };
+  const fmtShort = ds => { const [y, m, d] = ds.split("-").map(Number); return `${d} ${MESES[m - 1]}`; };
 
-  let dates = [];
-  let state = { leftIdx: 0, rightIdx: 0, sliderX: 600 };
+  let manifest = null;
+  let map = null;
+  let initialized = false;
+  let leftIdx = 0, rightIdx = 0;
+  let paneLeftLayers = [], paneRightLayers = [];
 
-  fetch("data/water_series.json")
-    .then(r => { if (!r.ok) throw new Error("sem arquivo"); return r.json(); })
-    .then(data => {
-      dates = (data.points || []).filter(p => p.kind === "observado").sort((a, b) => a.ds.localeCompare(b.ds));
-      if (!dates.length) return;
-      state.leftIdx = 0;
-      state.rightIdx = dates.length - 1;
-      buildCanvas();
-      buildDateList();
-      updateAll();
-    })
-    .catch(err => console.error("Falha ao carregar water_series.json", err));
+  fetch("data/manifest.json")
+    .then(r => { if (!r.ok) throw new Error("manifest"); return r.json(); })
+    .then(m => { manifest = m; leftIdx = 0; rightIdx = m.dates.length - 1; })
+    .catch(err => console.error("Falha ao carregar manifest.json", err));
 
-  function radiusFor(km2) {
-    const r = 70 * Math.sqrt(km2 / 250);
-    return Math.max(55, Math.min(190, r));
+  const mapaTabBtn = document.querySelector('.tab[data-tab="mapa"]');
+  if (mapaTabBtn) mapaTabBtn.addEventListener("click", tryInit);
+
+  function tryInit() {
+    if (initialized || !manifest) return;
+    initialized = true;
+    requestAnimationFrame(() => requestAnimationFrame(initMap));
   }
 
-  function buildCanvas() {
-    const canvas = $("mapCanvas");
-    canvas.innerHTML = `
-      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Área de estudo com régua de comparação entre duas datas">
-        <defs>
-          <pattern id="scan" width="40" height="40" patternUnits="userSpaceOnUse" patternTransform="rotate(12 690 400)">
-            <rect width="40" height="2" fill="var(--texto-secundario)" opacity="0.45" />
-          </pattern>
-          <clipPath id="clipLeft"><rect id="clipLeftRect" x="0" y="0" width="${state.sliderX}" height="${H}" /></clipPath>
-          <clipPath id="clipRight"><rect id="clipRightRect" x="${state.sliderX}" y="0" width="${W - state.sliderX}" height="${H}" /></clipPath>
-        </defs>
+  function layerFor(date, type) {
+    return manifest.layers.find(l => l.date === date && l.type === type);
+  }
 
-        <rect width="${W}" height="${H}" fill="var(--fundo-mapa-terra)" />
-        <ellipse cx="180" cy="90" rx="260" ry="210" fill="var(--fundo-mapa-vegetacao)" opacity="0.8" />
-        <ellipse cx="1050" cy="140" rx="230" ry="200" fill="var(--fundo-mapa-vegetacao)" opacity="0.8" />
-        <ellipse cx="1000" cy="690" rx="260" ry="210" fill="var(--fundo-mapa-vegetacao)" opacity="0.7" />
-        <ellipse cx="150" cy="700" rx="210" ry="180" fill="var(--fundo-mapa-vegetacao)" opacity="0.6" />
+  function initMap() {
+    const [w, s, e, n] = manifest.aoi.bbox;
+    const bounds = [[s, w], [n, e]];
 
-        <path d="M -20 220 Q 320 320 620 260 Q 900 210 1160 420" fill="none" stroke="var(--agua-principal)" stroke-width="9" stroke-linecap="round" opacity="0.45" />
+    $("mapTitle").textContent = manifest.aoi.name === "pantanal-norte" ? "Área de estudo" : manifest.aoi.name;
+    $("mapSub").textContent = `Pantanal norte (MT) · Trilha NISAR 132 · ${manifest.aoi.area_km2.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} km² de AOI`;
 
-        <rect x="520" y="-300" width="340" height="1400" transform="rotate(12 690 400)" fill="var(--confianca-baixa)" opacity="0.4" stroke="var(--texto-principal)" stroke-width="2" />
-        <rect x="520" y="-300" width="340" height="1400" transform="rotate(12 690 400)" fill="url(#scan)" />
+    map = L.map("leafletMap", {
+      zoomControl: false, dragging: false, scrollWheelZoom: false, doubleClickZoom: false,
+      boxZoom: false, keyboard: false, touchZoom: false, tap: false,
+    });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 14,
+      attribution: "&copy; OpenStreetMap | NISAR: NASA/ISRO, ASF DAAC | OPERA: NASA/JPL",
+    }).addTo(map);
+    map.fitBounds(bounds);
+    L.rectangle(bounds, { color: "#1b2a22", weight: 1.5, fill: false, dashArray: "6 4", interactive: false }).addTo(map);
 
-        <rect x="160" y="100" width="940" height="640" fill="none" stroke="var(--texto-principal)" stroke-width="1.5" stroke-dasharray="6 4" />
-        <text x="172" y="112" font-size="11" font-weight="600" fill="var(--texto-principal)" letter-spacing="0.6">ÁREA DE ESTUDO</text>
-        <text x="164" y="754" font-size="10" fill="var(--texto-secundario)">-17.5°, -58.3°</text>
-        <text x="938" y="104" font-size="10" fill="var(--texto-secundario)" text-anchor="end">-16.5°, -57.3°</text>
+    map.createPane("paneLeft"); map.getPane("paneLeft").style.zIndex = 450;
+    map.createPane("paneRight"); map.getPane("paneRight").style.zIndex = 451;
 
-        <g>
-          <rect x="560" y="20" width="170" height="28" rx="14" fill="var(--fundo-superficie)" />
-          <text x="645" y="39" font-size="12" font-weight="600" fill="var(--texto-principal)" text-anchor="middle">Trilha 132 ↑ (ascendente)</text>
-        </g>
+    buildOverlayUI();
+    buildDateList();
+    renderOverlays();
 
-        <g clip-path="url(#clipLeft)">
-          <ellipse id="waterLeft" cx="480" cy="380" rx="150" ry="100" fill="var(--agua-principal)" opacity="0.85" />
-        </g>
-        <g clip-path="url(#clipRight)">
-          <ellipse id="waterRight" cx="480" cy="380" rx="120" ry="80" fill="var(--agua-principal)" opacity="0.5" />
-        </g>
+    $("toggleHH").addEventListener("change", renderOverlays);
 
-        <line id="sliderLine" x1="${state.sliderX}" y1="0" x2="${state.sliderX}" y2="${H}" stroke="var(--texto-principal)" stroke-width="3" />
+    new ResizeObserver(() => { map.invalidateSize(); map.fitBounds(bounds); positionSlider(currentSliderPx()); }).observe($("leafletMap"));
+  }
 
-        <g id="handleGroup" class="slider-handle-svg" style="cursor:ew-resize" transform="translate(${state.sliderX} ${H / 2})">
-          <circle r="28" fill="var(--fundo-superficie)" stroke="var(--texto-principal)" stroke-width="2" />
-          <path d="M -15 -7 L -22 0 L -15 7 M 15 -7 L 22 0 L 15 7 M -22 0 L 22 0" fill="none" stroke="var(--texto-principal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        </g>
+  // --- slider (comparison line) ---
+  let sliderPx = null;
 
-        <g id="labelLeftGroup" transform="translate(40 40)">
-          <rect id="labelLeftBg" x="0" y="0" width="150" height="28" rx="14" fill="var(--fundo-superficie)" />
-          <text id="labelLeft" x="75" y="19" font-size="12" font-weight="600" fill="var(--agua-principal)" text-anchor="middle"></text>
-        </g>
-        <g id="labelRightGroup" transform="translate(${W - 190} 40)">
-          <rect id="labelRightBg" x="0" y="0" width="150" height="28" rx="14" fill="var(--fundo-superficie)" />
-          <text id="labelRight" x="75" y="19" font-size="12" font-weight="600" fill="var(--texto-principal)" text-anchor="middle"></text>
-        </g>
+  function currentSliderPx() {
+    const rect = document.querySelector(".map-canvas").getBoundingClientRect();
+    return sliderPx == null ? rect.width / 2 : Math.max(40, Math.min(rect.width - 40, sliderPx));
+  }
 
-        <text x="1080" y="38" font-size="13" font-weight="700" fill="var(--texto-principal)" text-anchor="middle">N</text>
-        <path d="M 1080 60 L 1080 46 L 1075 52 M 1080 46 L 1085 52" fill="none" stroke="var(--texto-principal)" stroke-width="1.5" />
+  function buildOverlayUI() {
+    const ui = $("mapOverlayUI");
+    ui.innerHTML = `
+      <div class="slider-line" id="sliderLine"></div>
+      <div class="slider-handle" id="sliderHandle">
+        <div class="hit">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M9 7 L5 12 L9 17 M15 7 L19 12 L15 17 M5 12 L19 12" fill="none" stroke="#1b2a22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="map-pill" id="pillLeft" style="top:16px; left:16px;"></div>
+      <div class="map-pill" id="pillRight" style="top:16px; right:16px;"></div>`;
 
-        <path d="M 40 696 L 140 696 M 40 690 L 40 702 M 140 690 L 140 702" fill="none" stroke="var(--texto-principal)" stroke-width="1.5" />
-        <text x="40" y="716" font-size="11" fill="var(--texto-secundario)">~50 km</text>
-      </svg>`;
-
-    const svg = canvas.querySelector("svg");
-    const handle = $("handleGroup");
+    const handle = $("sliderHandle");
     let dragging = false;
-
-    function toSvgX(clientX) {
-      const rect = svg.getBoundingClientRect();
-      const scale = W / rect.width;
-      return Math.max(80, Math.min(W - 80, (clientX - rect.left) * scale));
-    }
-    function startDrag(ev) {
-      dragging = true;
-      handle.setPointerCapture(ev.pointerId);
-    }
-    function moveDrag(ev) {
+    handle.addEventListener("pointerdown", ev => { dragging = true; handle.setPointerCapture(ev.pointerId); });
+    handle.addEventListener("pointermove", ev => {
       if (!dragging) return;
-      state.sliderX = toSvgX(ev.clientX);
-      applySlider();
+      const rect = document.querySelector(".map-canvas").getBoundingClientRect();
+      const px = Math.max(40, Math.min(rect.width - 40, ev.clientX - rect.left));
+      positionSlider(px);
+    });
+    handle.addEventListener("pointerup", () => { dragging = false; });
+    handle.addEventListener("pointercancel", () => { dragging = false; });
+
+    positionSlider(currentSliderPx());
+  }
+
+  function positionSlider(px) {
+    sliderPx = px;
+    $("sliderLine").style.left = px + "px";
+    $("sliderHandle").style.left = px + "px";
+    applyClip(px);
+  }
+
+  function applyClip(px) {
+    if (!map) return;
+    const w = map.getSize().x;
+    map.getPane("paneLeft").style.clipPath = `inset(0 ${Math.max(0, w - px)}px 0 0)`;
+    map.getPane("paneRight").style.clipPath = `inset(0 0 0 ${Math.max(0, px)}px)`;
+  }
+
+  // --- overlays per side ---
+  function clearSide(list) { list.forEach(o => map.removeLayer(o)); return []; }
+
+  function addSide(dateIdx, pane) {
+    const date = manifest.dates[dateIdx];
+    const list = [];
+    if ($("toggleHH").checked) {
+      const hh = layerFor(date, "backscatter");
+      if (hh) list.push(L.imageOverlay("data/" + hh.file, hh.bounds, { pane, opacity: 0.95 }).addTo(map));
     }
-    function endDrag() { dragging = false; }
-
-    handle.addEventListener("pointerdown", startDrag);
-    handle.addEventListener("pointermove", moveDrag);
-    handle.addEventListener("pointerup", endDrag);
-    handle.addEventListener("pointercancel", endDrag);
+    const ow = layerFor(date, "open_water");
+    if (ow) list.push(L.imageOverlay("data/" + ow.file, ow.bounds, { pane, opacity: 0.9 }).addTo(map));
+    return list;
   }
 
-  function applySlider() {
-    $("clipLeftRect").setAttribute("width", state.sliderX);
-    $("clipRightRect").setAttribute("x", state.sliderX);
-    $("clipRightRect").setAttribute("width", W - state.sliderX);
-    $("sliderLine").setAttribute("x1", state.sliderX);
-    $("sliderLine").setAttribute("x2", state.sliderX);
-    $("handleGroup").setAttribute("transform", `translate(${state.sliderX} ${H / 2})`);
+  function renderOverlays() {
+    paneLeftLayers = clearSide(paneLeftLayers);
+    paneRightLayers = clearSide(paneRightLayers);
+    paneLeftLayers = addSide(leftIdx, "paneLeft");
+    paneRightLayers = addSide(rightIdx, "paneRight");
+    updateLabels();
   }
 
+  function updateLabels() {
+    const left = manifest.dates[leftIdx], right = manifest.dates[rightIdx];
+    const owL = layerFor(left, "open_water"), owR = layerFor(right, "open_water");
+    $("pillLeft").textContent = `Esquerda · ${fmtDate(left)}${owL ? " · " + owL.water_km2.toLocaleString("pt-BR") + " km²" : ""}`;
+    $("pillRight").textContent = `Direita · ${fmtDate(right)}${owR ? " · " + owR.water_km2.toLocaleString("pt-BR") + " km²" : ""}`;
+  }
+
+  // --- sidebar date list ---
   function buildDateList() {
-    $("dateList").innerHTML = dates.map((p, i) => (
+    $("dateList").innerHTML = manifest.dates.map((d, i) => (
       `<div class="date-row" data-idx="${i}">
-        <span>${fmtDate(p.ds).replace(` ${p.ds.slice(0, 4)}`, "")}</span>
+        <span>${fmtShort(d)}</span>
         <span class="toggles">
           <button class="toggle" data-side="left" aria-label="Usar como esquerda">E</button>
           <button class="toggle" data-side="right" aria-label="Usar como direita">D</button>
@@ -142,24 +158,18 @@
       const btn = ev.target.closest(".toggle");
       if (!btn) return;
       const idx = Number(btn.closest(".date-row").dataset.idx);
-      if (btn.dataset.side === "left") state.leftIdx = idx; else state.rightIdx = idx;
-      updateAll();
+      if (btn.dataset.side === "left") leftIdx = idx; else rightIdx = idx;
+      renderOverlays();
+      markActiveToggles();
     });
+    markActiveToggles();
   }
 
-  function updateAll() {
-    const left = dates[state.leftIdx], right = dates[state.rightIdx];
-    $("waterLeft").setAttribute("rx", radiusFor(left.observed_km2));
-    $("waterLeft").setAttribute("ry", radiusFor(left.observed_km2) * 0.67);
-    $("waterRight").setAttribute("rx", radiusFor(right.observed_km2));
-    $("waterRight").setAttribute("ry", radiusFor(right.observed_km2) * 0.67);
-    $("labelLeft").textContent = `Esquerda · ${fmtDate(left.ds)}`;
-    $("labelRight").textContent = `Direita · ${fmtDate(right.ds)}`;
-
+  function markActiveToggles() {
     document.querySelectorAll(".date-row").forEach(row => {
       const idx = Number(row.dataset.idx);
-      row.querySelector('[data-side="left"]').classList.toggle("active-e", idx === state.leftIdx);
-      row.querySelector('[data-side="right"]').classList.toggle("active-d", idx === state.rightIdx);
+      row.querySelector('[data-side="left"]').classList.toggle("active-e", idx === leftIdx);
+      row.querySelector('[data-side="right"]').classList.toggle("active-d", idx === rightIdx);
     });
   }
 })();
